@@ -1,0 +1,31 @@
+<header class="navbar">
+  <div class="navbar-container">
+
+    <!-- Logo / Brand -->
+    <a routerLink="/" class="navbar-brand">
+      <img src="/assets/logo.webp" alt="Corrida das Teclas Logo" />
+      <span>Corrida das Teclas</span>
+    </a>
+
+    <!-- Botão hamburguer (mobile) -->
+    <button class="menu-toggle" (click)="toggleMenu()">☰</button>
+
+    <!-- Menu -->
+    <nav class="navbar-menu" [class.open]="menuOpen">
+      <ul class="menu-list">
+        <li>
+          <a routerLink="/">Início</a>
+        </li>
+
+        <li>
+          <a routerLink="/rules">Regras</a>
+        </li>
+
+        <li>
+          <a routerLink="/about">Sobre</a>
+        </li>
+      </ul>
+    </nav> <!-- 🔥 FALTAVA ISSO -->
+
+  </div>
+</header>

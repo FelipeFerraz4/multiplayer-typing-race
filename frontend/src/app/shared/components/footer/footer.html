@@ -1,0 +1,64 @@
+<footer class="footer">
+  <div class="footer-content">
+    <!-- Logo + descrição -->
+    <div class="footer-brand">
+      <div>
+        <img src="/assets/images/brand/logo.webp" alt="Logo do site" class="logo" />
+      </div>
+
+      <div>
+        <h2>Blue Fox Aquarismo</h2>
+        <p>
+          Blog dedicado ao aquarismo, cuidados com peixes, montagem de aquários e experiências
+          reais.
+        </p>
+        <!-- Redes sociais / contacto -->
+        <div class="footer-social">
+          <ul>
+            <li><a href="#" target="_blank">Instagram</a></li>
+            <li><a href="#" target="_blank">GitHub</a></li>
+            <li><a href="#" target="_blank">LinkedIn</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu do footer -->
+    <nav class="footer-nav">
+      <div class="column">
+        <h3>Geral</h3>
+        <ul>
+          <li><a routerLink="/" routerLinkActive="active">Início</a></li>
+          <li><a routerLink="/artigos" routerLinkActive="active">Artigos</a></li>
+          <li><a routerLink="/guias" routerLinkActive="active">Guias</a></li>
+          <li><a routerLink="/about" routerLinkActive="active">Sobre</a></li>
+        </ul>
+      </div>
+
+      <div class="column">
+        <h3>Ferramentas</h3>
+        <ul>
+          <li>
+            <a routerLink="/ferramentas/montar-aquario" routerLinkActive="active">Montar Aquário</a>
+          </li>
+          <li>
+            <a routerLink="/ferramentas/quiz-peixes" routerLinkActive="active">Quiz de Peixes</a>
+          </li>
+          <li><a routerLink="/ferramentas/jogos" routerLinkActive="active">Jogos Educativos</a></li>
+        </ul>
+      </div>
+
+      <div class="column">
+        <h3>Legal</h3>
+        <ul>
+          <li><a routerLink="/terms-of-use" routerLinkActive="active">Termos de Serviço</a></li>
+          <li>
+            <a routerLink="/privacy-policy" routerLinkActive="active">Política de Privacidade</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <div class="footer-bottom">© {{ currentYear }} Felipe Ferraz · Blue Fox Group</div>
+</footer>

@@ -1,0 +1,17 @@
+<div class="cookie-banner" *ngIf="showBanner">
+    <div class="cookie-text">
+        <p>
+            Utilizamos cookies e tecnologias semelhantes para melhorar sua experiência,
+            analisar o tráfego e personalizar conteúdos.
+            Ao clicar em <strong>“Aceitar”</strong>, você concorda com o uso de cookies,
+            conforme descrito em nossa
+            <!-- <a routerLink="/privacy-policy">Política de Privacidade</a>
+            e nos
+            <a routerLink="/terms-of-use">Termos de Uso</a>. -->
+        </p>
+    </div>
+
+    <div class="cookie-actions">
+        <button (click)="acceptCookies()">Aceitar</button>
+    </div>
+</div>
