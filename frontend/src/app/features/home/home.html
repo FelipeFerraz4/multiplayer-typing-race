@@ -4,5 +4,19 @@
     <input type="text" placeholder="Seu nome" [(ngModel)]="name" />
 
     <button (click)="createRoom()">Criar Sala</button>
-    <button (click)="joinRoom()">Entre em uma sala</button>
+    <button (click)="openModal()">Entrar em uma sala</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" *ngIf="showModal">
+    <div class="modal">
+        <h2>Entrar na Sala</h2>
+
+        <input type="text" placeholder="Digite o ID da sala" [(ngModel)]="roomId" />
+
+        <div class="modal-actions">
+            <button class="cancel" (click)="closeModal()">Cancelar</button>
+            <button class="confirm" (click)="confirmJoin()">Entrar</button>
+        </div>
+    </div>
 </div>

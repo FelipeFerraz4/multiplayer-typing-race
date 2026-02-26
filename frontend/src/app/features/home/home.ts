@@ -24,10 +24,22 @@ export class Home {
     this.router.navigate(['/room', roomId]);
   }
 
-  joinRoom() {
-    const roomId = prompt("Enter Room ID");
-    if (roomId) {
-      this.router.navigate(['/room', roomId]);
+  showModal = false;
+  roomId = '';
+
+  openModal() {
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.roomId = '';
+  }
+
+  confirmJoin() {
+    if (this.roomId.trim()) {
+      this.router.navigate(['/room', this.roomId]);
+      this.closeModal();
     }
   }
 }
