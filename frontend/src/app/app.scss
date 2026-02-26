@@ -3,3 +3,9 @@ app-root {
     flex-direction: column;
     min-height: 100vh;
 }
+
+.main-content {
+    flex: 1; // empurra o footer para baixo
+    display: flex;
+    flex-direction: column;
+}

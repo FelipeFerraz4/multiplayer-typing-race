@@ -1,0 +1,155 @@
+/* ===============================
+   🏁 HOME - CORRIDA DAS TECLAS
+=================================*/
+
+@use "sass:color";
+
+$bg-main: #ffffff;
+$primary: #ff6b6b;
+$secondary: #ffd166;
+$text-dark: #1f2333;
+$text-soft: #6c757d;
+
+/* Container principal */
+
+.container {
+    min-height: calc(100vh - 340px); // ocupa quase tela inteira (header+footer)
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: $bg-main;
+    text-align: center;
+    padding: 2rem 1.5rem;
+}
+
+/* ===============================
+   TÍTULO
+=================================*/
+
+h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem); // escala automática
+    font-weight: 800;
+    color: $text-dark;
+    margin-bottom: 2.5rem;
+    letter-spacing: 1px;
+}
+
+/* ===============================
+   FORM AREA
+=================================*/
+
+input {
+    width: 100%;
+    max-width: 420px;
+    padding: 1rem 1.2rem;
+    font-size: 1.1rem;
+    border-radius: 14px;
+    border: 2px solid #e0e0e0;
+    outline: none;
+    transition: 0.3s;
+    margin-bottom: 1.5rem;
+
+    &:focus {
+        border-color: $primary;
+        box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.15);
+    }
+
+    &::placeholder {
+        color: $text-soft;
+    }
+}
+
+/* ===============================
+   BOTÕES
+=================================*/
+
+button {
+    width: 100%;
+    max-width: 420px;
+    padding: 1rem;
+    margin: 0.6rem 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 40px;
+    border: none;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+/* Criar Sala */
+
+button:first-of-type {
+    background: $primary;
+    color: white;
+
+    &:hover {
+        background: color.adjust($primary, $lightness: -8%);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(255, 107, 107, 0.25);
+    }
+}
+
+/* Entrar em sala */
+
+button:last-of-type {
+    background: $secondary;
+    color: $text-dark;
+
+    &:hover {
+        background: color.adjust($secondary, $lightness: -8%);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(255, 209, 102, 0.25);
+    }
+}
+
+/* ===============================
+   📱 MOBILE PEQUENO
+=================================*/
+
+@media (max-width: 480px) {
+    .container {
+        padding: 1.5rem 1rem;
+    }
+
+    input,
+    button {
+        font-size: 1rem;
+    }
+}
+
+/* ===============================
+   📲 TABLET
+=================================*/
+
+@media (min-width: 768px) {
+    .container {
+        padding: 3rem;
+    }
+
+    input,
+    button {
+        max-width: 480px;
+    }
+}
+
+/* ===============================
+   💻 DESKTOP GRANDE
+=================================*/
+
+@media (min-width: 1200px) {
+    .container {
+        padding: 4rem;
+    }
+
+    input,
+    button {
+        max-width: 520px;
+    }
+}
+
+@media (max-width: 400px) {
+    h1 {
+        line-height: 1.4;
+    }
+}

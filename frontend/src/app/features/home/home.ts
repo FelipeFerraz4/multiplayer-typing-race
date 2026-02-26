@@ -15,7 +15,7 @@ import { CommonModule } from '@angular/common';
 })
 export class Home {
 
-  nickname: string = '';
+  name: string = '';
 
   constructor(private router: Router) { }
 
