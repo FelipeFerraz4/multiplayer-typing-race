@@ -1,5 +1,5 @@
 .footer {
-  background: #0b1c26; // azul bem escuro
+  background: #ffd54c; // azul bem escuro
   color: #dceaf2;
   padding: 3rem 1.5rem 1.5rem;
   font-size: 0.95rem;
@@ -25,13 +25,13 @@
   }
 
   h2 {
-    color: #4fc3f7;
+    color: #000000;
     margin-bottom: 0.5rem;
   }
 
   p {
     line-height: 1.5;
-    color: #b6cbd8;
+    color: #2e3336;
   }
 }
 
@@ -43,7 +43,7 @@
   gap: 2rem;
 
   h3 {
-    color: #4fc3f7;
+    color: #000000;
     margin-bottom: 0.75rem;
   }
 
@@ -56,11 +56,11 @@
     }
 
     a {
-      color: #dceaf2;
+      color: #2e3336;
       text-decoration: none;
 
       &:hover {
-        color: #4fc3f7;
+        color: #52646f;
       }
     }
   }
@@ -98,7 +98,7 @@
   border-top: 1px solid #1f3b4a;
   text-align: center;
   font-size: 0.85rem;
-  color: #9fb6c3;
+  color: #2e3336;
 }
 
 @media (max-width: 900px) {
