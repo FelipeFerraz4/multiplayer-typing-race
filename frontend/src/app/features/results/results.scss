@@ -1,0 +1,181 @@
+.results-container {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+}
+
+.title {
+    font-size: 2.5rem;
+    color: #333;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 🏆 PÓDIO */
+.podium-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 1rem;
+    height: 300px;
+    width: 100%;
+}
+
+.podium-place {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 120px;
+
+    .avatar-wrapper {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: white;
+        padding: 5px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 10px;
+
+        img {
+            width: 100%;
+            height: auto;
+        }
+    }
+
+    .name {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .step {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        border-radius: 10px 10px 0 0;
+    }
+
+    &.first {
+        z-index: 2;
+
+        .step {
+            height: 160px;
+            background: #ffd700;
+            font-size: 2.5rem;
+        }
+
+        .avatar-wrapper {
+            width: 100px;
+            height: 100px;
+            border: 4px solid #ffd700;
+        }
+
+        .crown {
+            font-size: 2rem;
+            margin-bottom: -10px;
+            z-index: 3;
+        }
+    }
+
+    &.second {
+        .step {
+            height: 120px;
+            background: #c0c0c0;
+        }
+
+        .avatar-wrapper {
+            border: 4px solid #c0c0c0;
+        }
+    }
+
+    &.third {
+        .step {
+            height: 80px;
+            background: #cd7f32;
+        }
+
+        .avatar-wrapper {
+            border: 4px solid #cd7f32;
+        }
+    }
+}
+
+/* 📋 CARDS */
+.players-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.player-card {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 1rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    gap: 1rem;
+
+    .rank {
+        font-weight: bold;
+        color: #666;
+        width: 30px;
+    }
+
+    .mini-avatar {
+        width: 40px;
+        height: 40px;
+    }
+
+    .player-info {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+
+        .player-name {
+            font-weight: bold;
+        }
+
+        .player-status {
+            font-size: 0.8rem;
+            color: #28a745;
+        }
+    }
+}
+
+.progress-mini {
+    width: 100px;
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+
+    .bar {
+        height: 100%;
+        background: #ff6b6b;
+    }
+}
+
+/* 🚪 BOTÃO */
+.back-button {
+    padding: 1rem 2.5rem;
+    font-size: 1.2rem;
+    background: #6bd3ff;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.2s;
+
+    &:hover {
+        transform: scale(1.05);
+        background: #5bc0eb;
+    }
+}

@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-game',
@@ -10,6 +11,9 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./game.scss']
 })
 export class Game implements OnInit {
+
+  constructor(private router: Router) { }
+
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
 
@@ -50,13 +54,15 @@ export class Game implements OnInit {
     }));
   }
 
+  roomId = 'ABCD123';
+
   onTyping() {
     this.currentIndex = this.typedText.length;
     this.players[4].progress = Math.min((this.currentIndex / this.text.length) * 100, 100);
     this.scrollToCurrent();
 
     if (this.currentIndex >= this.text.length) {
-      setTimeout(() => alert('🏆 Você venceu!'), 200);
+      this.router.navigate(['/results', this.roomId]);
     }
   }
 

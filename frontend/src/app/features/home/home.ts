@@ -19,13 +19,13 @@ export class Home {
 
   constructor(private router: Router) { }
 
+  roomId = 'ABCD123';
+
   createRoom() {
-    const roomId = Math.random().toString(36).substring(2, 8);
-    this.router.navigate(['/room', roomId]);
+    this.router.navigate(['/room', this.roomId]);
   }
 
   showModal = false;
-  roomId = '';
 
   openModal() {
     this.showModal = true;
