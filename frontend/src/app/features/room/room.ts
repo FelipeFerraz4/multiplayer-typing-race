@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-room',
@@ -9,16 +10,14 @@ import { Component } from '@angular/core';
   styleUrl: './room.scss',
 })
 export class Room {
+  constructor(private router: Router) { }
 
   avatars = [
-    { id: 1, name: '🦊', url: '/assets/logo-water.webp' },
-    { id: 2, name: '🐶', url: '/assets/logo-run.webp' },
-    { id: 3, name: '🐱', url: '/assets/logo-ok.webp' },
-    { id: 4, name: '🦄', url: '/assets/logo-sleep.webp' },
-    { id: 5, name: '🐼', url: '/assets/logo-happy.webp' },
-    { id: 6, name: '🐸', url: '/assets/logo-water.webp' },
-    { id: 7, name: '🦉', url: '/assets/logo-water.webp' },
-    { id: 8, name: '🐯', url: '/assets/logo-water.webp' }
+    { id: 1, name: 'water', url: '/assets/logo-water.webp' },
+    { id: 2, name: 'run', url: '/assets/logo-run.webp' },
+    { id: 3, name: 'ok', url: '/assets/logo-ok.webp' },
+    { id: 4, name: 'sleep', url: '/assets/logo-sleep.webp' },
+    { id: 5, name: 'happy', url: '/assets/logo-happy.webp' }
   ];
   roomId = 'ABCD123';
   isHost = true;
@@ -36,7 +35,7 @@ export class Room {
   }
 
   startGame() {
-    console.log('Corrida iniciada!');
+    this.router.navigate(['/game', this.roomId]);
   }
 
   avatarMap = new Map<number, { name: string; url: string }>();

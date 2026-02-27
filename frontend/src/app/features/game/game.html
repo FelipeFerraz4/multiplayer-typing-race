@@ -1,1 +1,23 @@
-<p>game works!</p>
+<div class="game-container">
+
+    <div class="track">
+        <div class="finish-line"></div>
+
+        <div class="lane" *ngFor="let player of players; let i = index" [style.--lane-index]="i">
+            <div class="runner" [style.left.%]="(player.progress / 100) * 92">
+                <img [src]="avatarMap.get(player.avatarId)?.url" />
+            </div>
+        </div>
+    </div>
+
+    <input #hiddenInput type="text" [(ngModel)]="typedText" (input)="onTyping()" class="hidden-input" />
+
+    <div class="text-box" #textBox (click)="focusInput()">
+        <div class="text-content">
+            <span *ngFor="let item of formattedText" [class.correct]="item.isCorrect" [class.current]="item.isCurrent">
+                {{ item.char }}
+            </span>
+        </div>
+    </div>
+
+</div>
