@@ -1,1 +1,46 @@
-<p>room works!</p>
+<div class="room-container">
+
+    <!-- Header da Sala -->
+    <div class="room-header">
+        <h1>Sala de Corrida 🏁</h1>
+
+        <div class="room-code">
+            <span>ID da Sala:</span>
+            <strong>{{ roomId }}</strong>
+            <button (click)="copyRoomId()">Copiar</button>
+        </div>
+    </div>
+
+    <!-- Lista de Jogadores -->
+    <div class="players-section">
+        <h2>Jogadores na Sala</h2>
+
+        <div class="players-grid">
+            <div class="player-card" *ngFor="let player of players" [class.host]="player.isHost">
+
+                <!-- Avatar agora vem da lista -->
+                <div class="avatar">
+                    <img [src]="avatarMap.get(player.avatarId)?.url" [alt]="avatarMap.get(player.avatarId)?.name" />
+                </div>
+
+                <div class="player-info">
+                    <span class="name">{{ player.name }}</span>
+                    <span class="role" *ngIf="player.isHost">Host 👑</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações -->
+    <div class="room-actions">
+        <button class="start-btn" *ngIf="isHost" (click)="startGame()">
+            Iniciar Corrida 🚀
+        </button>
+
+        <p *ngIf="!isHost" class="waiting-text">
+            Aguardando o host iniciar a corrida...
+        </p>
+    </div>
+
+</div>
