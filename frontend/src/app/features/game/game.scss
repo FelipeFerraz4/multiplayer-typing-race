@@ -1,8 +1,9 @@
 .game-container {
-    padding: 2rem;
+    padding: 1rem 0; // Padding apenas no topo e embaixo
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
+    width: 100%;
 }
 
 .track {
@@ -21,7 +22,7 @@
     border-bottom: 2px dashed #ccc;
     display: flex;
     align-items: center;
-    height: calc(45px + (var(--lane-index) * 15px));
+    height: calc(70px + (var(--lane-index) * 4px));
 
     &:last-child {
         border-bottom: none;
@@ -31,15 +32,63 @@
 .runner {
     position: absolute;
     /* Mantemos a largura variável para o efeito de profundidade */
-    width: calc(4% + (var(--lane-index) * 1%));
+    width: calc(5.5% + (var(--lane-index) * 0.3%));
     transition: left 0.1s linear;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding-left: 10px;
+
+    .player-label {
+        // position: absolute;
+        // right: 115%;
+        /* Mantém o recuo à esquerda do avatar */
+
+        // Tipografia
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #2d3436;
+        white-space: nowrap;
+
+        // Fundo Estilo Vidro (Glassmorphism)
+        background: rgba(254, 166, 114, 0.9);
+        backdrop-filter: blur(4px);
+
+        // Formato e Borda
+        padding: 4px 10px;
+        border-radius: 4px;
+
+        /* 🔥 O detalhe da etiqueta: uma borda lateral grossa que muda a cor */
+        border-left: 4px solid #ed8e53;
+
+        // Efeito de profundidade
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15);
+
+        // Centralização interna
+        display: flex;
+        align-items: center;
+        pointer-events: none;
+
+        /* Pequena "setinha" apontando para o avatar */
+        &::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 6px solid #ed8e53;
+        }
+    }
 
     img {
         width: 100%;
         height: auto;
+        aspect-ratio: 1 / 1; // Força uma proporção quadrada para uniformizar
+        object-fit: contain; // Garante que a imagem não corte
         animation: bounce 0.4s infinite alternate;
         filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.1));
     }

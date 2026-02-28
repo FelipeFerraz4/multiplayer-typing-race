@@ -5,6 +5,7 @@
 
         <div class="lane" *ngFor="let player of players; let i = index" [style.--lane-index]="i">
             <div class="runner" [style.left.%]="(player.progress / 100) * 92">
+                <span class="player-label">{{ player.name }}</span>
                 <img [src]="avatarMap.get(player.avatarId)?.url" />
             </div>
         </div>
