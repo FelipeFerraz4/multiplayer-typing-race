@@ -185,13 +185,109 @@
     color: #28a745;
 }
 
-@media (max-width: 768px) {
+/* ==========================================================
+   📱 RESPONSIVIDADE (TABLETS E CELULARES)
+   ========================================================== */
+
+/* 1. TABLETS (Telas até 1024px) */
+@media (max-width: 1024px) {
     .lane {
-        height: calc(35px + (var(--lane-index) * 8px));
+        height: calc(60px + (var(--lane-index) * 6px));
+    }
+
+    .runner {
+        /* Aumentamos a largura base para não sumir no tablet */
+        width: calc(8% + (var(--lane-index) * 0.5%));
+
+        .player-label {
+            font-size: 0.65rem;
+            padding: 3px 6px;
+        }
     }
 
     .text-box {
-        font-size: 1.5rem;
-        padding: 1.5rem;
+        font-size: 2rem;
+        padding: 2rem 1.5rem;
+    }
+}
+
+/* 2. CELULARES (Telas até 768px) */
+@media (max-width: 768px) {
+    .game-container {
+        gap: 0.5rem;
+    }
+
+    .track {
+        padding: 1vh 0;
+        /* Removemos arredondamento no mobile para ganhar espaço */
+        border-radius: 0;
+    }
+
+    .lane {
+        /* Altura mínima confortável para o dedo/olho */
+        height: calc(50px + (var(--lane-index) * 5px));
+    }
+
+    .runner {
+        /* No mobile, usamos uma largura maior para o avatar ser visível */
+        width: calc(8% + (var(--lane-index) * 0.5%));
+
+        .player-label {
+            font-size: 0.55rem;
+            padding: 2px 5px;
+
+            /* Diminuímos a seta para não ocupar espaço */
+            &::after {
+                border-left-width: 4px;
+                right: -4px;
+            }
+        }
+    }
+
+    .finish-line {
+        width: 3%;
+        /* Linha mais grossa para ser visível no celular */
+        right: 8%;
+        /* Mais longe da borda para o boneco não sumir */
+    }
+
+    .text-box {
+        font-size: 1.3rem;
+        /* Texto menor para caber mais palavras */
+        padding: 1.2rem;
+        min-height: 80px;
+        margin: 0 1rem;
+        border-radius: 12px;
+    }
+}
+
+/* 3. CELULARES MUITO PEQUENOS (Telas até 480px) */
+@media (max-width: 480px) {
+
+
+    .runner {
+        /* Forçamos um tamanho mínimo em pixels para o avatar */
+        width: calc(45px + (var(--lane-index) * 2px));
+
+        .player-label {
+            /* Em telas muito pequenas, o nome pode sobrepor. 
+               Opcional: Esconder o nome ou deixá-lo acima do avatar */
+            position: absolute;
+            top: -15px;
+            right: auto;
+            left: 0;
+            background: rgba(254, 166, 114, 1);
+
+            &::after {
+                display: none;
+            }
+        }
+    }
+}
+
+@media (min-width: 2000px) {
+    .lane {
+        /* Altura mínima confortável para o dedo/olho */
+        height: calc(120px + (var(--lane-index) * 20px));
     }
 }

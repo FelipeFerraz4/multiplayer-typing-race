@@ -17,7 +17,7 @@ export class Game implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
 
-  text: string = 'O rato roeu a roupa do rei de Roma enquanto corria pela floresta encantada.';
+  text: string = 'O rato roeu a roupa do rei de Roma e o rei de roma roeu a roupa do rei dos ratos.';
   typedText = '';
   currentIndex = 0;
 
