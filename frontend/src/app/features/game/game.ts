@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, inject, PLATFORM_ID } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild, ElementRef, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
   templateUrl: './game.html',
   styleUrls: ['./game.scss']
 })
-export class Game implements OnInit {
+export class Game implements OnInit, AfterViewInit {
 
   constructor(private router: Router) { }
 
@@ -44,6 +44,14 @@ export class Game implements OnInit {
 
   ngOnInit() {
     this.avatars.forEach(a => this.avatarMap.set(a.id, { url: a.url }));
+  }
+
+  // 3. Adicione este método
+  ngAfterViewInit() {
+    // Verificamos se estamos no navegador para evitar erros de SSR
+    if (this.isBrowser) {
+      this.focusInput();
+    }
   }
 
   get formattedText() {
