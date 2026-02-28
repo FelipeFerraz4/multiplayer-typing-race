@@ -47,23 +47,84 @@ export class Game implements OnInit {
   }
 
   get formattedText() {
-    return this.text.split('').map((char, i) => ({
-      char: char,
-      isCorrect: i < this.currentIndex,
-      isCurrent: i === this.currentIndex
-    }));
+    return this.text.split('').map((char, i) => {
+      const isCurrent = i === this.currentIndex;
+      // Capturamos o que o usuário digitou nessa posição se houver erro
+      const wrongChar = (isCurrent && this.isError) ? this.typedText[i] : null;
+
+      return {
+        char: char,
+        isCorrect: i < this.currentIndex,
+        isCurrent: isCurrent,
+        isWrong: isCurrent && this.isError,
+        wrongChar: wrongChar // Letra errada para mostrar na etiqueta
+      };
+    });
   }
 
   roomId = 'ABCD123';
 
-  onTyping() {
-    this.currentIndex = this.typedText.length;
-    this.players[4].progress = Math.min((this.currentIndex / this.text.length) * 100, 100);
-    this.scrollToCurrent();
+  // Adicione esta variável para gerenciar o estado de erro visual (opcional)
+  isError = false;
 
-    if (this.currentIndex >= this.text.length) {
-      this.router.navigate(['/results', this.roomId]);
+  onKeydown(event: KeyboardEvent) {
+    // 1. Permite Backspace para o usuário poder apagar se você permitir erros (opcional)
+    if (event.key === 'Backspace') {
+      if (this.currentIndex > 0) {
+        this.currentIndex--;
+        this.typedText = this.text.substring(0, this.currentIndex);
+        this.isError = false;
+        this.updateProgress();
+      }
+      event.preventDefault(); // Evitamos o comportamento padrão do input
+      return;
     }
+
+    // 2. Ignora teclas de controle (Shift, Alt, etc)
+    if (event.key.length > 1) return;
+
+    const charDigitado = event.key;
+    const charEsperado = this.text[this.currentIndex];
+
+    console.log(`Pressionou: [${charDigitado}] | Esperado: [${charEsperado}]`);
+
+    // 3. Checagem em tempo real
+    if (charDigitado === charEsperado) {
+      this.currentIndex++;
+      this.isError = false;
+
+      // Atualizamos o texto que aparece no input/tela
+      this.typedText = this.text.substring(0, this.currentIndex);
+
+      this.updateProgress();
+      this.scrollToCurrent();
+      this.checkVictory();
+    } else {
+      // ERRO: Não avançamos o índice e ativamos o efeito de erro
+      this.isError = true;
+      this.triggerErrorEffect();
+      console.log('Erro! Tecla bloqueada.');
+    }
+
+    // 4. BLOQUEIO: Impedimos que a tecla seja escrita no input automaticamente
+    // Nós mesmos controlamos o valor da string via código
+    event.preventDefault();
+  }
+
+  updateProgress() {
+    this.players[4].progress = Math.min((this.currentIndex / this.text.length) * 100, 100);
+  }
+
+  checkVictory() {
+    if (this.currentIndex >= this.text.length) {
+      setTimeout(() => this.router.navigate(['/results', this.roomId]), 200);
+    }
+  }
+
+  triggerErrorEffect() {
+    // Exemplo de feedback: um pequeno "shake" na tela
+    this.isError = true;
+    setTimeout(() => this.isError = false, 200);
   }
 
   scrollToCurrent() {

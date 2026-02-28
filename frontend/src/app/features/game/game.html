@@ -11,11 +11,13 @@
         </div>
     </div>
 
-    <input #hiddenInput type="text" [(ngModel)]="typedText" (input)="onTyping()" class="hidden-input" />
+    <input #hiddenInput type="text" [value]="typedText" (keydown)="onKeydown($event)" class="hidden-input"
+        autocorrect="off" spellcheck="false" />
 
-    <div class="text-box" #textBox (click)="focusInput()">
+    <div class="text-box" #textBox (click)="focusInput()" [class.error-shake]="isError">
         <div class="text-content">
-            <span *ngFor="let item of formattedText" [class.correct]="item.isCorrect" [class.current]="item.isCurrent">
+            <span *ngFor="let item of formattedText" [class.correct]="item.isCorrect" [class.current]="item.isCurrent"
+                [class.error]="item.isCurrent && isError">
                 {{ item.char }}
             </span>
         </div>
