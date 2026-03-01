@@ -1,0 +1,111 @@
+.about-section{
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 50px; /* Aumentei o respiro interno */
+    background-color: white;
+    border-radius: 30px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
+}
+
+.about-section h1{
+    padding-bottom: 5%;
+    display: block;
+}
+
+.about-section h2{
+    display: block;
+}
+
+.origin-section{
+    display: flex;
+    font-size: medium;
+    text-align: justify;
+    padding-top: 3%;
+    padding-bottom: 3%;
+}
+
+.origin-section img{
+    width: 100%;
+    height: auto;
+    max-width: 250px;
+}
+
+.stacks-section h2{
+    display: block;
+    padding-bottom: 2%;
+}
+
+/* Container que segura todos os cards */
+.tech-grid {
+    display: grid;
+    /* Cria colunas de no mínimo 280px. Se não couber 3, ele pula para 2 ou 1 sozinho */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* O Card Individual */
+.tech-cards {
+    display: flex; /* Alinha imagem e texto lado a lado */
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 15px;
+    border: 2px solid #edf2f7;
+    transition: transform 0.2s ease;
+}
+
+.tech-cards:hover {
+    transform: translateY(-5px);
+    border-color: #ffcad4; /* Cor temática que usamos nas regras */
+}
+
+/* Padronização das Imagens de Tecnologia */
+.tech-cards img {
+    width: 60px;  /* Tamanho fixo para padronizar */
+    height: 60px; /* Tamanho fixo para padronizar */
+    object-fit: contain; /* Garante que a logo não estique */
+    margin-right: 15px;
+}
+
+/* Estilo do Texto dentro do Card */
+.tech-info h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.tech-info p {
+    margin: 5px 0 0 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #666;
+}
+
+/* Ajuste específico para a seção Equipe */
+.equipe {
+    margin-top: 50px;
+    text-align: center;
+}
+
+.equipe h2 {
+    margin-bottom: 20px;
+}
+
+.equipe p {
+    display: inline-block;
+    background: #e2e8f0;
+    padding: 8px 15px;
+    border-radius: 20px;
+    margin: 5px;
+    font-weight: 500;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .origin-section{
+        flex-direction: column;
+        text-align: justify;
+    }
+    
+}
