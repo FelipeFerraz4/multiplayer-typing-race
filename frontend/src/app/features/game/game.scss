@@ -185,6 +185,72 @@
     color: #28a745;
 }
 
+/* No final do seu arquivo .scss */
+
+.text-box.error-shake {
+    animation: shake 0.2s ease-in-out;
+    border-color: #ff6b6b !important;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* Melhorando a letra atual quando houver erro */
+.current.error {
+    background: #ff6b6b;
+    color: white;
+}
+
+.wrong {
+    color: #ff6b6b; // A letra esperada fica vermelha
+    position: relative;
+
+    /* 🔥 A ETIQUETA COM A LETRA ERRADA */
+    &::before {
+        content: attr(data-wrong);
+        /* Pega a letra do atributo HTML */
+        position: absolute;
+        top: -45px; // Flutua acima da linha
+        left: 50%;
+        transform: translateX(-50%);
+
+        background: #ff6b6b;
+        color: white;
+        font-size: 1.2rem;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+    }
+
+    /* Pequena seta da etiqueta */
+    &::after {
+        content: '';
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 8px solid #ff6b6b;
+        z-index: 10;
+    }
+}
+
 /* ==========================================================
    📱 RESPONSIVIDADE (TABLETS E CELULARES)
    ========================================================== */
