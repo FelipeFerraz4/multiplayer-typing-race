@@ -57,3 +57,29 @@ game_model = api.model(
         )
     }
 )
+
+progress_update_model = api.model(
+    'ProgressUpdateRequest',
+    {
+        'user_id': fields.String(
+            required=True,
+            description='User identifier',
+            example='7392'
+        ),
+        'typed_characters': fields.Integer(
+            required=True,
+            description='Number of correctly typed characters',
+            example=120
+        ),
+        'errors': fields.Integer(
+            required=True,
+            description='Number of typing errors',
+            example=3
+        ),
+        'elapsed_time': fields.Float(
+            required=True,
+            description='Elapsed time in seconds',
+            example=15.4
+        )
+    }
+)
