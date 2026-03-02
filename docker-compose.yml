@@ -11,6 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
     networks:
       - game-network
 
@@ -24,6 +25,9 @@ services:
       - "18861:18861"
     environment:
       - DB_HOST=database
+      - POSTGRES_DB=game
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
     networks:
       - game-network
 

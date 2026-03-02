@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource
 from models import room_model, user_model
 import rpyc
+from rpyc.utils.classic import obtain
 
 ns = Namespace(name='Rooms', path='/room', description='Room management endpoints for creating, joining, leaving, and controlling multiplayer typing race sessions.')
 
@@ -18,7 +19,33 @@ class RoomColletion(Resource):
     @ns.marshal_with(room_model, mask=None)
     @ns.doc('create_room', description='Create a new room.')
     def post(self):
-        pass
+        data = ns.payload
+
+        user = {
+            "id": data["id"],
+            "name": data["name"],
+            "is_host": data["is_host"],
+            "avatar_id": data["avatar_id"]
+        }
+
+        rpc_conn = rpyc.connect(
+            host="rpc-service",
+            port=18861,
+            config={
+                "allow_public_attrs": True,
+                "allow_pickle": True  # ADICIONE ISSO
+            }
+        )
+
+        # Chama a função remota
+        remote_room = rpc_conn.root.create_room(user)
+
+        # CONVERSÃO ESSENCIAL:
+        # Transforma o NetProxy em um dicionário Python local
+        room = obtain(remote_room)
+
+        rpc_conn.close() # Feche a conexão para não vazar sockets
+        return room
     
 @ns.route('/<string:room_id>')
 class RoomById(Resource):

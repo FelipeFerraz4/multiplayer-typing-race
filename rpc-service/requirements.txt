@@ -1,0 +1,2 @@
+rpyc
+psycopg2-binary
