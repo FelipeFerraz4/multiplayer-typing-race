@@ -1,0 +1,62 @@
+services:
+  database:
+    image: postgres:16
+    container_name: game-db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: game
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - game-network
+
+  rpc-service:
+    build: ./rpc-service
+    container_name: rpc-service
+    restart: always
+    depends_on:
+      - database
+    ports:
+      - "18861:18861"
+    environment:
+      - DB_HOST=database
+    networks:
+      - game-network
+
+  api-flask:
+    build: ./api-flask
+    container_name: api-flask
+    restart: always
+    depends_on:
+      - rpc-service
+      - database
+    ports:
+      - "5000:5000"
+    environment:
+      - RPC_HOST=rpc-service
+      - RPC_PORT=18861
+      - DB_HOST=database
+    networks:
+      - game-network
+
+  frontend:
+    build: ./frontend
+    container_name: angular-frontend
+    restart: always
+    depends_on:
+      - api-flask
+    ports:
+      - "80:4000"
+    networks:
+      - game-network
+
+volumes:
+  db_data:
+
+networks:
+  game-network:
+    driver: bridge

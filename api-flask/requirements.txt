@@ -1,0 +1,6 @@
+Flask
+flask-restx
+flask-cors
+rpyc
+flask-socketio
+eventlet
