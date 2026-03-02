@@ -1,0 +1,83 @@
+/* Container e Títulos */
+.rules_section {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 50px; /* Aumentei o respiro interno */
+    background-color: white;
+    border-radius: 30px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
+}
+
+.objective h1 {
+    margin-bottom: 25px; /* Espaço abaixo do título principal */
+    color: black;
+}
+
+.objective p{
+    padding-bottom: 5%;
+    font-size: medium;
+    text-align: justify;
+}
+
+.objective {
+    margin-bottom: 40px;
+    border-bottom: 2px dashed #ffcad4;
+}
+
+/* Título da seção de regras */
+.main-subtitle {
+    text-align: left;
+    display: block; /* Garante que ele ocupe a linha toda */
+    color: black;
+    font-size: 1.8rem;
+    margin-top: 20px;    /* Espaço em relação ao objetivo */
+    width: 100%;
+}
+
+/* Estrutura Flexbox Corrigida */
+.rule-item {
+    display: flex;
+    align-items: center;
+    gap: 30px; /* Mais espaço entre texto e imagem */
+    margin-bottom: 30px; /* Mais espaço entre uma regra e outra */
+}
+
+/* Seletor corrigido para o zigue-zague */
+.rule-item.reverse {
+    flex-direction: row-reverse;
+}
+
+.rule-text {
+    flex: 1.2; /* Texto ganha um pouco mais de destaque */
+    font-size: medium;
+    text-align: justify;
+}
+
+.rule-media {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.rule-media img {
+    width: 100%;
+    height: auto;
+    max-width: 450px; /* Aumentei um pouco o limite do GIF */
+    border-radius: 20px;
+    border: 8px solid #fddfe5; /* Borda fofinha */
+    outline: 2px solid #ffcad4; /* Contorno fino para destaque */
+    box-shadow: 10px 10px 0px #ffcad4; /* Sombra sólida estilo "sticker" */
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .rule-item, .rule-item.reverse {
+        flex-direction: column;
+        text-align: center;
+        gap: 50px;
+    }
+
+    .main-subtitle{
+        margin-bottom: 10%;
+    }
+}
