@@ -1,18 +1,21 @@
 <div class="container">
     <h1>Corrida de Digitação</h1>
 
-    <input type="text" placeholder="Seu nome" [(ngModel)]="name" />
+    <input type="text" placeholder="Seu nome" [(ngModel)]="name" [disabled]="isLoading" />
 
-    <button (click)="createRoom()">Criar Sala</button>
-    <button (click)="openModal()">Entrar em uma sala</button>
+    <button (click)="createRoom()" [disabled]="isLoading">
+        {{ isLoading ? 'Criando...' : 'Criar Sala' }}
+    </button>
+    
+    <button (click)="openModal()" [disabled]="isLoading">Entrar em uma sala</button>
 </div>
 
-<!-- MODAL -->
 <div class="modal-overlay" *ngIf="showModal">
     <div class="modal">
         <h2>Entrar na Sala</h2>
 
-        <input type="text" placeholder="Digite o ID da sala" [(ngModel)]="roomId" />
+        <p>Olá, <strong>{{ name }}</strong>! Digite o código da sala:</p>
+        <input type="text" placeholder="Ex: 8D109B" [(ngModel)]="roomId" style="text-transform: uppercase;" />
 
         <div class="modal-actions">
             <button class="cancel" (click)="closeModal()">Cancelar</button>
