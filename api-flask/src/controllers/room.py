@@ -1,11 +1,8 @@
 from flask_restx import Namespace, Resource
 from models import room_model, user_model
-import rpyc
-from rpyc.utils.classic import obtain
+from rpc_client import rpc_client
 
 ns = Namespace(name='Rooms', path='/room', description='Room management endpoints for creating, joining, leaving, and controlling multiplayer typing race sessions.')
-
-# rpc_conn = rpyc.connect('localhost', 18861)
 
 @ns.route('/')
 class RoomColletion(Resource):
@@ -28,23 +25,11 @@ class RoomColletion(Resource):
             "avatar_id": data["avatar_id"]
         }
 
-        rpc_conn = rpyc.connect(
-            host="rpc-service",
-            port=18861,
-            config={
-                "allow_public_attrs": True,
-                "allow_pickle": True  # ADICIONE ISSO
-            }
-        )
+        room = rpc_client.call("create_room", user)
 
-        # Chama a função remota
-        remote_room = rpc_conn.root.create_room(user)
+        if not room:
+            ns.abort(500, "Não foi possível criar a sala no serviço RPC.")
 
-        # CONVERSÃO ESSENCIAL:
-        # Transforma o NetProxy em um dicionário Python local
-        room = obtain(remote_room)
-
-        rpc_conn.close() # Feche a conexão para não vazar sockets
         return room
     
 @ns.route('/<string:room_id>')

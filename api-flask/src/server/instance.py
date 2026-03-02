@@ -8,10 +8,20 @@ import os
 class Server:
     def __init__(self):
         self.__app = Flask(__name__)
-        socketio = SocketIO(self.__app, cors_allowed_origins="*")
+        
+        # No Docker, seu front responde na porta 80 (padrão http)
+        # Se você acessar apenas 'localhost', a origem é 'http://localhost'
+        allowed_origins = ["http://localhost", "http://127.0.0.1", "http://localhost:4200"]
 
-        CORS(self.__app)
-        self.__app.config["CORS_HEADERS"] = "Content-Type"
+        # 1. Flask CORS
+        CORS(self.__app, resources={r"/*": {"origins": allowed_origins}})
+        
+        # 2. SocketIO CORS
+        self.__socketio = SocketIO(
+            self.__app, 
+            cors_allowed_origins=allowed_origins,
+            async_mode='eventlet'
+        )
 
         self.__api = Api(
             self.__app,
@@ -49,6 +59,10 @@ class Server:
     @property
     def app(self) -> Flask:
         return self.__app
+    
+    @property
+    def socketio(self) -> SocketIO:
+        return self.__socketio
 
     @app.setter
     def app(self, value) -> None:
@@ -59,7 +73,9 @@ class Server:
 
     def run(self) -> None:
         port = int(os.environ.get("PORT", 5000))
-        self.app.run(debug=True, host="0.0.0.0", port=port)
+        # Isso garante que o eventlet gerencie as conexões corretamente
+        print(f"Servidor subindo na porta {port}...")
+        self.socketio.run(self.__app, debug=True, host="0.0.0.0", port=port, use_reloader=False)
 
 
 server: Server = Server()
