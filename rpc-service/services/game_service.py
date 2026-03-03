@@ -118,8 +118,67 @@ class GameService:
         if not game:
             raise Exception("Game not found")
 
-        # 🔹 Busca todos os progressos
+        # Busca todos os progressos
         progress_list = self.repo.get_all_progress(game_id)
 
         return progress_list    
     
+    
+    def finish_game(self, game_id):
+        # Buscar jogo com progresso
+        game = self.repo.get_game_with_progress(game_id)
+
+        if not game:
+            raise Exception("Game not found")
+
+        # Atualizar estado do jogo
+        self.repo.update_game_state(game_id, "FINISHED")
+
+        progress_list = game["users_progress"]
+
+        # Ordenar ranking
+        sorted_progress = sorted(
+            progress_list,
+            key=lambda p: (-p["progress"], p["elapsed_time"])
+        )
+
+        results = []
+
+        for position, progress in enumerate(sorted_progress, start=1):
+
+            user = self.repo.get_user_by_id(progress["user_id"])
+
+            wpm = self._calculate_wpm(progress)
+
+            result = {
+                "game_id": game_id,
+                "user_id": progress["user_id"],
+                "name": user["name"] if user else "",
+                "position": position,
+                "wpm": wpm,
+                "final_time": progress["elapsed_time"]
+            }
+
+            # Salvar no banco
+            self.repo.save_game_result(result)
+
+            results.append(result)
+
+        return {
+            "game_id": game_id,
+            "state": "FINISHED",
+            "results": results
+        }
+        
+        
+    def _calculate_wpm(self, progress):
+        typed_chars = progress.get("progress_index", 0)
+        elapsed_time = progress.get("elapsed_time", 1)
+
+        words = typed_chars / 5  # média padrão: 5 chars = 1 palavra
+        minutes = elapsed_time / 60
+
+        if minutes == 0:
+            return 0
+
+        return round(words / minutes, 2)

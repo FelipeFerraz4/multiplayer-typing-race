@@ -176,3 +176,65 @@ class GameRepository:
         finally:
             cursor.close()
             conn.close()
+            
+            
+    def update_game_state(self, game_id, state):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            UPDATE games
+            SET state = %s
+            WHERE id = %s
+        """, (state, game_id))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+
+    def get_user_by_id(self, user_id):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT id, name
+            FROM users
+            WHERE id = %s
+        """, (user_id,))
+
+        row = cur.fetchone()
+
+        cur.close()
+        conn.close()
+
+        if row:
+            return {
+                "id": row[0],
+                "name": row[1]
+            }
+
+        return None
+    
+    
+    
+    def save_game_result(self, result):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            INSERT INTO game_results
+            (game_id, user_id, name, position, wpm, final_time)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+            result["game_id"],
+            result["user_id"],
+            result["name"],
+            result["position"],
+            result["wpm"],
+            result["final_time"]
+        ))
+
+        conn.commit()
+        cur.close()
+        conn.close()
