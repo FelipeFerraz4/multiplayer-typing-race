@@ -235,3 +235,52 @@ class RoomRepository:
         conn.close()
 
         return rooms
+    
+    
+    def remove_user_from_room(self, room_id, user_id):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        try:
+            # Remove vínculo
+            cur.execute("""
+                DELETE FROM room_users
+                WHERE room_id = %s AND user_id = %s
+            """, (room_id, user_id))
+
+            # Opcional: remover usuário da tabela users
+            cur.execute("""
+                DELETE FROM users
+                WHERE id = %s
+            """, (user_id,))
+
+            conn.commit()
+
+        except Exception as e:
+            conn.rollback()
+            raise e
+
+        finally:
+            cur.close()
+            conn.close()
+            
+            
+    def delete_room(self, room_id):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        try:
+            cur.execute("""
+                DELETE FROM rooms
+                WHERE id = %s
+            """, (room_id,))
+
+            conn.commit()
+
+        except Exception as e:
+            conn.rollback()
+            raise e
+
+        finally:
+            cur.close()
+            conn.close()

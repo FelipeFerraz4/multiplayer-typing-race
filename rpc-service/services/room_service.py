@@ -48,10 +48,33 @@ class RoomService:
         return self.repo.get_room_with_users(room["id"])
     
     
-    def find_by_id(self, room_id):
+    def get_room(self, room_id):
         room = self.repo.get_room_with_users(room_id)
 
         if not room:
             raise Exception("Room not found")
 
         return room
+    
+    def leave_room(self, room_id, user_id):
+        room = self.repo.get_room_with_users(room_id)
+
+        if not room:
+            raise Exception("Room not found")
+
+        user_ids = [u["id"] for u in room["users"]]
+
+        if user_id not in user_ids:
+            raise Exception("User is not in this room")
+
+        # Se for admin
+        if room["id_admin"] == user_id:
+            self.repo.delete_room(room_id)
+            return {"message": "Room deleted because admin left"}
+
+        # Remover usuário normal
+        self.repo.remove_user_from_room(room_id, user_id)
+
+        return self.repo.get_room_with_users(room_id)
+    
+    
