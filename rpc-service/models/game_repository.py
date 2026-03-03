@@ -2,29 +2,26 @@ import json
 from database.connection import get_connection
 
 class GameRepository:
-    def save_game(self, game):
+    def create_game(self, game):
         conn = get_connection()
-        cur = conn.cursor()
+        cursor = conn.cursor()
 
         try:
-            cur.execute("""
-                INSERT INTO games (id, room_id, state, progress)
-                VALUES (%s, %s, %s, %s)
+            cursor.execute("""
+                INSERT INTO games (id, room_id, text, text_size, state)
+                VALUES (%s, %s, %s, %s, %s)
             """, (
                 game["id"],
                 game["room_id"],
-                game["state"],
-                json.dumps(game["progress"])
+                game["text"],
+                game["text_size"],
+                game["state"]
             ))
 
             conn.commit()
 
-        except Exception as e:
-            conn.rollback()
-            raise e
-
         finally:
-            cur.close()
+            cursor.close()
             conn.close()
             
             
@@ -72,6 +69,109 @@ class GameRepository:
                 })
 
             return game
+
+        finally:
+            cursor.close()
+            conn.close()
+            
+            
+            
+    def create_initial_progress(self, game_id, user_id):
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        try:
+            # Evita duplicidade (caso já exista)
+            cursor.execute("""
+                SELECT 1 FROM game_progress
+                WHERE game_id = %s AND user_id = %s
+            """, (game_id, user_id))
+
+            exists = cursor.fetchone()
+
+            if exists:
+                return  # Já existe, não cria de novo
+
+            cursor.execute("""
+                INSERT INTO game_progress (
+                    game_id,
+                    user_id,
+                    progress,
+                    progress_index
+                )
+                VALUES (%s, %s, 0, 0)
+            """, (game_id, user_id))
+
+            conn.commit()
+
+        finally:
+            cursor.close()
+            conn.close()
+            
+
+    def update_user_progress(
+        self,
+        game_id,
+        user_id,
+        progress,
+        progress_index,
+        errors,
+        elapsed_time
+    ):
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("""
+                UPDATE game_progress
+                SET progress = %s,
+                    progress_index = %s,
+                    errors = %s,
+                    elapsed_time = %s
+                WHERE game_id = %s
+                AND user_id = %s
+            """, (
+                progress,
+                progress_index,
+                errors,
+                elapsed_time,
+                game_id,
+                user_id
+            ))
+
+            conn.commit()
+
+        finally:
+            cursor.close()
+            conn.close()
+            
+            
+    def get_all_progress(self, game_id):
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("""
+                SELECT user_id, progress, progress_index, errors, elapsed_time
+                FROM game_progress
+                WHERE game_id = %s
+                ORDER BY progress DESC
+            """, (game_id,))
+
+            rows = cursor.fetchall()
+
+            progress_list = []
+
+            for row in rows:
+                progress_list.append({
+                    "user_id": str(row[0]),
+                    "progress": float(row[1]),
+                    "progress_index": row[2],
+                    "errors": row[3],
+                    "elapsed_time": float(row[4])
+                })
+
+            return progress_list
 
         finally:
             cursor.close()

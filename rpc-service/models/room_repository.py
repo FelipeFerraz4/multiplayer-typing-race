@@ -284,3 +284,39 @@ class RoomRepository:
         finally:
             cur.close()
             conn.close()
+            
+    
+    def update_room_game(self, room_id, game_id):
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("""
+                UPDATE rooms
+                SET game_id = %s
+                WHERE id = %s
+            """, (game_id, room_id))
+
+            conn.commit()
+
+        finally:
+            cursor.close()
+            conn.close()
+            
+    
+    def update_room_state(self, room_id, new_state):
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("""
+                UPDATE rooms
+                SET state = %s
+                WHERE id = %s
+            """, (new_state, room_id))
+
+            conn.commit()
+
+        finally:
+            cursor.close()
+            conn.close()
