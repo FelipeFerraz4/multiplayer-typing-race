@@ -1,27 +1,25 @@
-from flask import Flask
-from flask_restx import Api  # type: ignore
-from flask_cors import CORS  # type: ignore
+from flask import Flask, request  # <--- IMPORT CORRETO AQUI
+from flask_restx import Api
+from flask_cors import CORS
 from flask_socketio import SocketIO, join_room, emit
 import os
-
 
 class Server:
     def __init__(self):
         self.__app = Flask(__name__)
         
-        # No Docker, seu front responde na porta 80 (padrão http)
-        # Se você acessar apenas 'localhost', a origem é 'http://localhost'
         allowed_origins = ["http://localhost", "http://127.0.0.1", "http://localhost:4200"]
 
-        # 1. Flask CORS
         CORS(self.__app, resources={r"/*": {"origins": allowed_origins}})
         
-        # 2. SocketIO CORS
         self.__socketio = SocketIO(
             self.__app, 
             cors_allowed_origins=allowed_origins,
             async_mode='eventlet'
         )
+        
+        # Registrar eventos
+        self.register_socket_events()
 
         self.__api = Api(
             self.__app,
@@ -48,55 +46,42 @@ class Server:
             doc="/",
         )
 
-    @property
-    def api(self) -> Api:
-        return self.__api
+    def register_socket_events(self):
+        # Usamos o objeto da instância para garantir o registro
+        socketio = self.__socketio
 
-    @api.setter
-    def api(self, value) -> None:
-        pass
+        @socketio.on('connect')
+        def handle_connect():
+            # request.sid identifica unicamente o navegador que conectou
+            print(f"🔌 [Socket] Conectado: {request.sid}")
+
+        @socketio.on('join_room')
+        def on_join(data):
+            room_id = data.get('room_id')
+            if room_id:
+                join_room(room_id)
+                print(f"🏠 [Socket] Cliente {request.sid} entrou na sala: {room_id}")
+            else:
+                print("⚠️ [Socket] join_room sem ID")
+
+        @socketio.on('start_game')
+        def on_start(data):
+            room_id = data.get('room_id')
+            print(f"🚀 [Socket] START_GAME na sala: {room_id}")
+            socketio.emit('game_started', {'room_id': room_id}, room=room_id)
 
     @property
-    def app(self) -> Flask:
-        return self.__app
+    def api(self) -> Api: return self.__api
+
+    @property
+    def app(self) -> Flask: return self.__app
     
     @property
-    def socketio(self) -> SocketIO:
-        return self.__socketio
-
-    @app.setter
-    def app(self, value) -> None:
-        pass
-    
-    ''' @socketio.on('connect')
-    def handle_connect():
-        print('Client connected')
-
-    # Cliente entra na sala websocket
-    @socketio.on('join_room')
-    def handle_join(data):
-        room_id = data['room_id']
-        join_room(room_id)
-        emit('message', {'msg': 'User joined'}, room=room_id)
-
-    # Host inicia partida
-    @socketio.on('start_game')
-    def handle_start(data):
-        room_id = data['room_id']
-        emit('game_started', {'room_id': room_id}, room=room_id)
-    
-    if __name__ == '__main__':
-        socketio.run(app, port=5000)    
-    '''
-
-    # def run(self) -> None:
-    #     self.app.run(debug=True)
+    def socketio(self) -> SocketIO: return self.__socketio
 
     def run(self) -> None:
         port = int(os.environ.get("PORT", 5000))
-        # Isso garante que o eventlet gerencie as conexões corretamente
         print(f"Servidor subindo na porta {port}...")
-        self.socketio.run(self.__app, debug=True, host="0.0.0.0", port=port, use_reloader=False)
+        self.__socketio.run(self.__app, debug=True, host="0.0.0.0", port=port, use_reloader=False)
 
-
-server: Server = Server()
+server = Server()

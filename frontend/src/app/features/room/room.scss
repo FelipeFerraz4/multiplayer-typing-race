@@ -187,3 +187,32 @@ $bg-light: #f5f7fa;
     height: 100%;
     object-fit: cover;
 }
+
+/* Removemos a borda vermelha fixa do host se preferir focar no usuário */
+.player-card.host {
+    border: 2px solid #ff6b6b;
+}
+
+/* Efeito de brilho para o SEU card */
+.player-card.is-me {
+    border: 2px solid #4cc9f0; // Uma cor azul/ciano para diferenciar do host
+    position: relative;
+    animation: glow-pulse 2s infinite ease-in-out;
+    background: linear-gradient(white, white) padding-box, 
+                linear-gradient(45deg, #4cc9f0, #4361ee) border-box;
+}
+
+@keyframes glow-pulse {
+    0% {
+        box-shadow: 0 0 5px rgba(76, 201, 240, 0.3);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(76, 201, 240, 0.6);
+        transform: scale(1.02); // Dá um leve destaque no tamanho
+    }
+    100% {
+        box-shadow: 0 0 5px rgba(76, 201, 240, 0.3);
+        transform: scale(1);
+    }
+}

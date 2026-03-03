@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource
 from models import room_model, user_model, error_model
 from client import rpc_client
+from server import server
 import uuid
 
 ns = Namespace(name='Rooms', path='/room', description='Room management endpoints for creating, joining, leaving, and controlling multiplayer typing race sessions.')
@@ -74,8 +75,7 @@ class RoomJoin(Resource):
     @ns.marshal_with(room_model, mask=None)
     @ns.doc('join_room', description='Join a room.')
     def put(self):
-        
-        print("API: join room called")
+        """ENTRAR NA SALA"""
         data = ns.payload
         user = {
             'id': str(uuid.uuid4()).upper(),
@@ -83,13 +83,21 @@ class RoomJoin(Resource):
             'is_host': data['is_host'],
             'avatar_id': data['avatar_id'],
         }
-        
         room_code = data['room_code']
         
         try:    
+            print(f" [RPC] Join Room: {room_code}")
             room = rpc_client.call('join_room', room_code, user)
+            
+            if room:
+                room_id = room['id']
+                print(f" [Socket] Emitindo 'room_joined' para sala: {room_id}")
+                # 🚀 USANDO A INSTÂNCIA server:
+                server.socketio.emit('room_joined', {'status': 'updated'}, room=room_id)
+            
             return room
-        except Exception:
+        except Exception as e:
+            print(f" Erro Join: {e}")
             ns.abort(500, message='Internal server error')
         
 @ns.route('/<string:room_id>/leave')

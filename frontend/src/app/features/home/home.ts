@@ -41,6 +41,11 @@ export class Home {
     this.roomService.createRoom(userPayload).subscribe({
       next: (room) => {
         this.isLoading = false;
+          userPayload.id = room.users.find(u => u.name === this.name)?.id || '';
+          console.log('Sala criada com sucesso:', room);
+          console.log('ID do usuário criado:', userPayload.id);
+          localStorage.setItem('user_id', userPayload.id);
+
         // Navega para a sala com o ID REAL gerado pelo Python/Postgres
         this.router.navigate(['/room', room.id]);
       },
@@ -92,6 +97,7 @@ export class Home {
       next: (room) => {
 
         this.isLoading = false;
+        localStorage.setItem('user_id', room.users.find(u => u.name === this.name)?.id || '');
 
         // 🚀 Agora você recebe a sala REAL do backend
         this.router.navigate(['/room', room.id]);

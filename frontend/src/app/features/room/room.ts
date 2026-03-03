@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectorRef, Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { RoomService, Room_game, User } from '../../core/services/room.service';
 
 @Component({
   selector: 'app-room',
@@ -10,7 +11,21 @@ import { Router } from '@angular/router';
   styleUrl: './room.scss',
 })
 export class Room {
-  constructor(private router: Router) { }
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private roomService: RoomService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  roomId: string = '';
+  room_code: string = '';
+  room?: Room_game;
+  players: User[] = [];
+  is_host = false;
+  loading = true;
+  currentUserId: string | null = '';
 
   avatars = [
     { id: 1, name: 'water', url: '/assets/logo-water.webp' },
@@ -19,33 +34,82 @@ export class Room {
     { id: 4, name: 'sleep', url: '/assets/logo-sleep.webp' },
     { id: 5, name: 'happy', url: '/assets/logo-happy.webp' }
   ];
-  roomId = 'ABCD123';
-  isHost = true;
-
-  players = [
-    { name: 'Ryan', isHost: true, avatarId: 1 },
-    { name: 'João', isHost: false, avatarId: 2 },
-    { name: 'Maria', isHost: false, avatarId: 3 },
-    { name: 'Pedro', isHost: false, avatarId: 4 },
-    { name: 'Lobo', isHost: false, avatarId: 5 },
-  ];
-
-  copyRoomId() {
-    navigator.clipboard.writeText(this.roomId);
-  }
-
-  startGame() {
-    this.router.navigate(['/game', this.roomId]);
-  }
 
   avatarMap = new Map<number, { name: string; url: string }>();
 
   ngOnInit() {
+    this.currentUserId = localStorage.getItem('user_id');
+
+    // Criar mapa de avatars (isso está ok)
     this.avatars.forEach(avatar => {
-      this.avatarMap.set(avatar.id, {
-        name: avatar.name,
-        url: avatar.url
-      });
+      this.avatarMap.set(avatar.id, { name: avatar.name, url: avatar.url });
+    });
+
+    this.route.paramMap.subscribe(params => {
+      this.roomId = params.get('id') || '';
+      if (this.roomId) {
+        this.loadRoom();
+        
+        // Inicia o socket através do serviço
+        this.roomService.connectSocket(this.roomId);
+      }
+    });
+
+    // Ouve se a sala foi atualizada (alguém entrou)
+    this.roomService.roomUpdated$.subscribe(() => {
+      this.loadRoom(); 
+    });
+
+    // Ouve se o jogo começou
+    this.roomService.gameStarted$.subscribe((id) => {
+      this.router.navigate(['/game', id]);
     });
   }
+
+  loadRoom() {
+
+    this.loading = true;
+
+    this.roomService.getRoomById(this.roomId).subscribe({
+      next: (room) => {
+
+        console.log("ROOM RECEBIDA:", room);
+
+        this.room = room;
+        this.players = room.users;
+
+        if (room.id_admin && this.currentUserId) {
+          this.is_host = room.id_admin?.toLowerCase() === this.currentUserId?.toLowerCase();
+        } else {
+          this.is_host = false;
+        }
+
+        this.loading = false;
+        this.cdr.detectChanges();
+
+        console.log("Loading agora:", this.loading);
+        console.log("É host?", this.is_host);
+      },
+      error: (err) => {
+        console.error('Erro ao carregar sala:', err);
+        this.loading = false;
+      }
+    });
+  }
+
+  copyRoomId() {
+    if (this.room?.room_code) {
+      navigator.clipboard.writeText(this.room.room_code);
+    }
+  }
+
+  startGame() {
+    // Em vez de navegar direto, avisa o socket (que avisará todo mundo)
+    this.roomService.emitStartGame(this.roomId);
+  }
+
+  ngOnDestroy() {
+    this.roomService.disconnectSocket();
+  }
+
 }
