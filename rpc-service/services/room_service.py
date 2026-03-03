@@ -46,3 +46,12 @@ class RoomService:
 
         # Retornar sala atualizada
         return self.repo.get_room_with_users(room["id"])
+    
+    
+    def find_by_id(self, room_id):
+        room = self.repo.get_room_with_users(room_id)
+
+        if not room:
+            raise Exception("Room not found")
+
+        return room

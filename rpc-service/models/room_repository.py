@@ -147,6 +147,11 @@ class RoomRepository:
             WHERE id = %s
         """, (room_id,))
         room_row = cur.fetchone()
+        
+        if not room_row:
+            cur.close()
+            conn.close()
+            return None
 
         # Buscar usuários da sala
         cur.execute("""
