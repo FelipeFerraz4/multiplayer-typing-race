@@ -238,3 +238,33 @@ class GameRepository:
         conn.commit()
         cur.close()
         conn.close()
+        
+        
+    def get_game_results(self, game_id):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT user_id, name, position, wpm, final_time
+            FROM game_results
+            WHERE game_id = %s
+            ORDER BY wpm DESC, final_time ASC
+        """, (game_id,))
+
+        rows = cur.fetchall()
+
+        cur.close()
+        conn.close()
+
+        results = []
+
+        for row in rows:
+            results.append({
+                "user_id": row[0],
+                "name": row[1],
+                "position": row[2],
+                "wpm": row[3],
+                "final_time": row[4]
+            })
+
+        return results

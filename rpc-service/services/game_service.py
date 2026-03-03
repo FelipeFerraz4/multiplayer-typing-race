@@ -182,3 +182,16 @@ class GameService:
             return 0
 
         return round(words / minutes, 2)
+    
+    
+    
+    def get_result(self, game_id):
+        results = self.repo.get_game_results(game_id)
+
+        if not results:
+            raise Exception("Results not found")
+
+        return {
+            "game_id": game_id,
+            "results": results
+        }
