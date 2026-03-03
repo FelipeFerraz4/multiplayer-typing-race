@@ -32,7 +32,7 @@ export class Home {
     this.isLoading = true;
 
     const userPayload: User = {
-      id: btoa(this.name + Math.random()).substring(0, 8), // Gera um ID único simples
+      id: "",
       name: this.name,
       is_host: true,
       avatar_id: 1 // Pode ser fixo por enquanto

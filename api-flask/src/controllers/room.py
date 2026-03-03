@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource
 from models import room_model, user_model
 from rpc_client import rpc_client
+import uuid
 
 ns = Namespace(name='Rooms', path='/room', description='Room management endpoints for creating, joining, leaving, and controlling multiplayer typing race sessions.')
 
@@ -19,7 +20,7 @@ class RoomColletion(Resource):
         data = ns.payload
 
         user = {
-            "id": data["id"],
+            "id": str(uuid.uuid4()).upper(),
             "name": data["name"],
             "is_host": data["is_host"],
             "avatar_id": data["avatar_id"]
