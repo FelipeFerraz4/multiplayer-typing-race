@@ -23,11 +23,17 @@ export interface Room {
   providedIn: 'root'
 })
 export class RoomService {
-  private apiUrl = 'http://localhost:5000/room'; // Porta da sua API Flask
 
-  constructor(private http: HttpClient) { }
+  private apiUrl = 'http://localhost:5000/room';
+
+  constructor(private http: HttpClient) {}
 
   createRoom(user: User): Observable<Room> {
     return this.http.post<Room>(`${this.apiUrl}/`, user);
+  }
+
+  joinRoom(payload: { id: string; name: string; is_host: boolean; avatar_id: number; room_code: string }): Observable<Room> {
+    console.log("RoomService: joinRoom called with payload:", payload);
+    return this.http.put<Room>(`${this.apiUrl}/join`, payload);
   }
 }

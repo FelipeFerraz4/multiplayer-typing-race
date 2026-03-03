@@ -35,10 +35,12 @@ class RPCClient:
             return None
 
         try:
-            # 🔥 CHAMA O MÉTODO EXATAMENTE COMO FOI PASSADO
             remote_method = getattr(conn.root, method_name)
 
-            result = remote_method(*args, **kwargs)
+            if kwargs:
+                result = remote_method(*args, **kwargs)
+            else:
+                result = remote_method(*args)
 
             return obtain(result)
 

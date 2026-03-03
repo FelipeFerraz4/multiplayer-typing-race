@@ -67,11 +67,44 @@ export class Home {
   }
 
   confirmJoin() {
-    if (this.roomId.trim()) {
-      // No futuro, aqui chamaremos o "joinRoom" no Service
-      // Por enquanto, apenas navegamos com o ID digitado
-      this.router.navigate(['/room', this.roomId.toUpperCase()]);
-      this.closeModal();
+
+    if (!this.roomId.trim()) {
+      alert('Digite o código da sala!');
+      return;
     }
+
+    if (!this.name.trim()) {
+      alert('Digite seu nome primeiro!');
+      return;
+    }
+
+    const payload = {
+      id: "",
+      name: this.name,
+      is_host: false,
+      avatar_id: 1,
+      room_code: this.roomId.toUpperCase()
+    };
+
+    this.isLoading = true;
+
+    this.roomService.joinRoom(payload).subscribe({
+      next: (room) => {
+
+        this.isLoading = false;
+
+        // 🚀 Agora você recebe a sala REAL do backend
+        this.router.navigate(['/room', room.id]);
+
+        this.closeModal();
+      },
+      error: (err) => {
+
+        this.isLoading = false;
+
+        console.error('Erro ao entrar na sala:', err);
+        alert('Erro ao entrar na sala. Código inválido ou servidor offline.');
+      }
+    });
   }
 }

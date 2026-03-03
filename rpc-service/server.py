@@ -13,11 +13,20 @@ class RPCService(rpyc.Service):
 
 
     def exposed_join_room(self, room_code_proxy, user_proxy):
+        # print("RPC: join_room foi chamado")
+
         room_code = obtain(room_code_proxy)
         user = obtain(user_proxy)
 
+        # print("room_code:", room_code)
+        # print("user:", user)
+
         service = RoomService()
-        return service.join_room(room_code, user)
+        result = service.join_room(room_code, user)
+
+        # print("RPC result:", result)
+
+        return result
 
 
     def exposed_get_room(self, room_id_proxy):

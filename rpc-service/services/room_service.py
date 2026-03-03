@@ -35,21 +35,28 @@ class RoomService:
         return rooms
     
     def join_room(self, room_code, user):
-        # Buscar sala pelo código
+        print("SERVICE: join_room iniciado")
+        print("room_code:", room_code)
+        print("user:", user)
+
         room = self.repo.find_by_code(room_code)
+        print("ROOM ENCONTRADA:", room)
 
         if not room:
+            print("Room not found")
             raise Exception("Room not found")
 
         if room["state"] != "WAITING":
-            raise Exception("Room is not accepting players")
+            raise Exception("Room not accepting players")
 
-        # Adicionar usuário
         self.repo.add_user_to_room(room["id"], user)
+        
+        print("Usuário adicionado à sala. Atualizando informações da sala...")
 
-        # Retornar sala atualizada
-        return self.repo.get_room_with_users(room["id"])
-    
+        updated_room = self.repo.get_room_with_users(room["id"])
+        print("ROOM ATUALIZADA:", updated_room)
+
+        return updated_room
     
     def get_room(self, room_id):
         room = self.repo.get_room_with_users(room_id)

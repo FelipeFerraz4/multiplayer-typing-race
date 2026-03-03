@@ -64,7 +64,7 @@ class RoomById(Resource):
             ns.abort(404, message='Room not found')
         return room
 
-@ns.route('/<string:room_id>/join')
+@ns.route('/join')
 class RoomJoin(Resource):
 
     @ns.expect(user_model, validate=True)
@@ -73,22 +73,22 @@ class RoomJoin(Resource):
     @ns.response(500, 'Internal server error', error_model)
     @ns.marshal_with(room_model, mask=None)
     @ns.doc('join_room', description='Join a room.')
-    def put(self, room_id):
+    def put(self):
+        
+        print("API: join room called")
         data = ns.payload
         user = {
-            'id': data['id'],
+            'id': str(uuid.uuid4()).upper(),
             'name': data['name'],
             'is_host': data['is_host'],
             'avatar_id': data['avatar_id'],
         }
         
-        try:
-            room = rpc_client.call('get_room', room_id)
-            if not room:
-                ns.abort(404, message='Room not found')
-            if len(room.users) >= 5:
-                ns.abort(400, 'Room is at maximun capacity')
-            rpc_client.call('join_room', room_id, user=user)
+        room_code = data['room_code']
+        
+        try:    
+            room = rpc_client.call('join_room', room_code, user)
+            return room
         except Exception:
             ns.abort(500, message='Internal server error')
         
