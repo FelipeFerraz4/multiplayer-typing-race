@@ -44,6 +44,5 @@ class RPCClient:
                 print(f"Erro ao chamar método remoto {method_name}: {e}")
                 return None
         return None
-
-# Instância única para ser importada nos controllers
+    
 rpc_client = RPCClient()

@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource
-from models import room_model, user_model
-from rpc_client import rpc_client
+from models import room_model, user_model, error_model
+from client import rpc_client
 import uuid
 
 ns = Namespace(name='Rooms', path='/room', description='Room management endpoints for creating, joining, leaving, and controlling multiplayer typing race sessions.')
@@ -8,12 +8,19 @@ ns = Namespace(name='Rooms', path='/room', description='Room management endpoint
 @ns.route('/')
 class RoomColletion(Resource):
 
+    @ns.response(500, 'Internal server error', error_model)
     @ns.marshal_list_with(room_model, mask=None)
     @ns.doc('list_rooms', description='Returns all active rooms.')
     def get(self):
-        pass
+        try:
+            rooms = rpc_client.call('list_rooms')
+            return rooms
+        except:
+            ns.abort(500, 'Internal server error')
     
     @ns.expect(user_model, validate=True)
+    @ns.response(400, 'User is not host', error_model)
+    @ns.response(500, 'Internal server error', error_model)
     @ns.marshal_with(room_model, mask=None)
     @ns.doc('create_room', description='Create a new room.')
     def post(self):
@@ -25,51 +32,78 @@ class RoomColletion(Resource):
             "is_host": data["is_host"],
             "avatar_id": data["avatar_id"]
         }
+        
+        if not user['is_host']:
+            ns.abort(400, message='Only host can create a new room')
 
-        room = rpc_client.call("create_room", user)
+        try:
+            room = rpc_client.call("create_room", user)
+        except Exception:
+            ns.abort(500, 'Internal server error')
 
         if not room:
-            ns.abort(500, "Não foi possível criar a sala no serviço RPC.")
+            ns.abort(500, 'Error during room creation')
 
         return room
     
 @ns.route('/<string:room_id>')
 class RoomById(Resource):
 
+    @ns.response(404, 'Room not found', error_model)
+    @ns.response(500, 'Internal server error', error_model)
     @ns.marshal_with(room_model, mask=None)
     @ns.doc('get_room', description='Get room by id.')
     def get(self, room_id):
-        pass
-
-@ns.route('/<string:room_id>/start')
-class RoomStart(Resource):
-    
-    def post(self):
-        pass
+        try:
+            room = rpc_client.call('get_room', room_id)
+        except Exception:
+            ns.abort(500, 'Internal server error')
+        if not room:
+            ns.abort(404, message='Room not found')
+        return room
 
 @ns.route('/<string:room_id>/join')
 class RoomJoin(Resource):
 
     @ns.expect(user_model, validate=True)
+    @ns.response(404, 'Room not found', error_model)
+    @ns.response(400, 'Can not enter room', error_model)
+    @ns.response(500, 'Internal server error', error_model)
     @ns.marshal_with(room_model, mask=None)
     @ns.doc('join_room', description='Join a room.')
     def put(self, room_id):
         data = ns.payload
-        
         user = {
             'id': data['id'],
             'name': data['name'],
             'is_host': data['is_host'],
             'avatar_id': data['avatar_id'],
         }
-        pass
-    
+        
+        try:
+            room = rpc_client.call('get_room', room_id)
+            if not room:
+                ns.abort(404, message='Room not found')
+            if len(room.users) >= 5:
+                ns.abort(400, 'Room is at maximun capacity')
+            rpc_client.call('join_room', room_id, user=user)
+        except Exception:
+            ns.abort(500, message='Internal server error')
+        
 @ns.route('/<string:room_id>/leave')
 class RoomLeave(Resource):
     
     @ns.expect(user_model, validate=True)
+    @ns.response(404, 'Room not found', error_model)
+    @ns.response(500, 'Internal server error', error_model)
     @ns.marshal_with(room_model, mask=None)
     @ns.doc('leave_room', description='Leave a room.')
     def delete(self, room_id):
-        pass
+        try:
+            room = rpc_client.call('leave_room', room_id)
+        except Exception:
+            ns.abort(500, message='Internal server error')
+        if not room:
+            ns.abort(404, message='Room not found')
+        return room
     
