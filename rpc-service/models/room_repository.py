@@ -178,3 +178,55 @@ class RoomRepository:
             "game": room_row[5],
             "users": users
         }
+        
+        
+    def list_rooms(self):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        # 1️⃣ Buscar todas as salas
+        cur.execute("""
+            SELECT id, room_code, port, state, id_admin, game
+            FROM rooms
+            ORDER BY created_at DESC
+        """)
+        rooms_rows = cur.fetchall()
+
+        rooms = []
+
+        for room in rooms_rows:
+            room_id = room[0]
+
+            # 2️⃣ Buscar usuários da sala
+            cur.execute("""
+                SELECT u.id, u.name, u.is_host, u.avatar_id
+                FROM users u
+                JOIN room_users ru ON ru.user_id = u.id
+                WHERE ru.room_id = %s
+            """, (room_id,))
+            users_rows = cur.fetchall()
+
+            users = []
+            for u in users_rows:
+                users.append({
+                    "id": u[0],
+                    "name": u[1],
+                    "is_host": u[2],
+                    "avatar_id": u[3]
+                })
+
+            # 3️⃣ Montar objeto sala
+            rooms.append({
+                "id": room[0],
+                "room_code": room[1],
+                "port": room[2],
+                "state": room[3],
+                "id_admin": room[4],
+                "game": room[5],
+                "users": users
+            })
+
+        cur.close()
+        conn.close()
+
+        return rooms
