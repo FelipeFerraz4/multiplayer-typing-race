@@ -29,7 +29,10 @@ class RoomService:
         return room
 
     def list_rooms(self):
-        return self.repo.list_rooms()
+        print("Listing rooms...")
+        rooms = self.repo.list_rooms()
+        print(rooms)
+        return rooms
     
     def join_room(self, room_code, user):
         # Buscar sala pelo código

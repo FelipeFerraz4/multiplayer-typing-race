@@ -13,7 +13,9 @@ class RoomColletion(Resource):
     @ns.doc('list_rooms', description='Returns all active rooms.')
     def get(self):
         try:
+            print("API: list_rooms called")
             rooms = rpc_client.call('list_rooms')
+            print(rooms)
             return rooms
         except:
             ns.abort(500, 'Internal server error')

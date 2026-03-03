@@ -36,6 +36,7 @@ class RPCService(rpyc.Service):
 
 
     def exposed_list_rooms(self):
+        print("RPC: list_rooms called")
         service = RoomService()
         return service.list_rooms()
 

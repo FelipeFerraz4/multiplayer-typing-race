@@ -29,20 +29,25 @@ class RPCClient:
             return None
 
     def call(self, method_name, *args, **kwargs):
-        """Executa um método remoto e já retorna os dados limpos (obtain)."""
         conn = self.get_connection()
-        if conn:
-            try:
-                # Acessa o método exposto no rpc-service (root.exposed_...)
-                remote_method = getattr(conn.root, f"create_room" if method_name == "create_room" else f"join_room")
-                # Se preferir automatizar o prefixo 'exposed_', use:
-                # remote_method = getattr(conn.root, method_name)
-                
-                result = remote_method(*args, **kwargs)
-                return obtain(result)
-            except Exception as e:
-                print(f"Erro ao chamar método remoto {method_name}: {e}")
-                return None
-        return None
+
+        if not conn:
+            return None
+
+        try:
+            # 🔥 CHAMA O MÉTODO EXATAMENTE COMO FOI PASSADO
+            remote_method = getattr(conn.root, method_name)
+
+            result = remote_method(*args, **kwargs)
+
+            return obtain(result)
+
+        except AttributeError:
+            print(f"❌ Método {method_name} não existe no RPC")
+            return None
+
+        except Exception as e:
+            print(f"❌ Erro ao chamar método {method_name}: {e}")
+            return None
     
 rpc_client = RPCClient()
