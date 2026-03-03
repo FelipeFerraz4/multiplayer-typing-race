@@ -67,6 +67,27 @@ class Server:
     @app.setter
     def app(self, value) -> None:
         pass
+    
+    ''' @socketio.on('connect')
+    def handle_connect():
+        print('Client connected')
+
+    # Cliente entra na sala websocket
+    @socketio.on('join_room')
+    def handle_join(data):
+        room_id = data['room_id']
+        join_room(room_id)
+        emit('message', {'msg': 'User joined'}, room=room_id)
+
+    # Host inicia partida
+    @socketio.on('start_game')
+    def handle_start(data):
+        room_id = data['room_id']
+        emit('game_started', {'room_id': room_id}, room=room_id)
+    
+    if __name__ == '__main__':
+        socketio.run(app, port=5000)    
+    '''
 
     # def run(self) -> None:
     #     self.app.run(debug=True)
