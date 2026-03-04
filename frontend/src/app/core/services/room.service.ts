@@ -60,6 +60,7 @@ export interface GameResult {
   position: number;
   wpm: number;
   final_time: number;
+  avatar_id?: number;
 }
 
 export interface GameFinishedData {
@@ -73,7 +74,7 @@ export interface GameFinishedEvent {
   data: GameFinishedData;
 }
 
-const host = "192.168.31.26";
+const host = "localhost";
 
 @Injectable({
   providedIn: 'root'
@@ -113,6 +114,10 @@ export class RoomService {
 
   startGame(roomId: string, userId: string): Observable<Game_game> {
     return this.http.post<Game_game>(`${this.apiUrl}/${roomId}/start`,{ user_id: userId });
+  }
+
+  getResults(gameId: string): Observable<GameResult[]> {
+    return this.http.get<GameResult[]>(`${this.socketUrl}/game/${gameId}/result`);
   }
 
   // --- Métodos de WebSocket ---

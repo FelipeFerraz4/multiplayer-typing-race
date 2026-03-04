@@ -13,7 +13,7 @@
         </div>
     </div>
 
-    <input #hiddenInput type="text" [value]="typedText" (keydown)="onKeydown($event)" class="hidden-input"
+    <input #hiddenInput type="text" [value]="typedText" (beforeinput)="onBeforeInput($event)" (keydown)="onKeydown($event)" class="hidden-input"
         autocorrect="off" spellcheck="false" />
 
     <div class="text-box" #textBox (click)="focusInput()" [class.error-shake]="isError">

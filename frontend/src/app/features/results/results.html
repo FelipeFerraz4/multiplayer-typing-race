@@ -1,48 +1,65 @@
 <div class="results-container">
     <h1 class="title">🏁 Resultados da Corrida</h1>
 
-    <div class="podium-container">
-        <div class="podium-place second" *ngIf="sortedPlayers[1]">
+    <div *ngIf="loading" class="loader-container">
+        <div class="spinner"></div>
+        <p>Calculando posições...</p>
+    </div>
+
+    <div class="podium-container" *ngIf="!loading && sortedPlayers.length > 0">
+        
+        <div class="podium-place second" *ngIf="sortedPlayers.length >= 2">
             <div class="avatar-wrapper">
-                <img [src]="avatarMap.get(sortedPlayers[1].avatarId)?.url" />
+                <img [src]="avatarMap.get(sortedPlayers[1].avatar_id || 1)?.url" />
             </div>
             <span class="name">{{ sortedPlayers[1].name }}</span>
+            <span class="stats-hint">{{ sortedPlayers[1].wpm }} WPM</span>
             <div class="step">2º</div>
         </div>
 
-        <div class="podium-place first" *ngIf="sortedPlayers[0]">
+        <div class="podium-place first">
             <div class="crown">👑</div>
             <div class="avatar-wrapper">
-                <img [src]="avatarMap.get(sortedPlayers[0].avatarId)?.url" />
+                <img [src]="avatarMap.get(sortedPlayers[0].avatar_id || 1)?.url" />
             </div>
             <span class="name">{{ sortedPlayers[0].name }}</span>
+            <span class="stats-hint">{{ sortedPlayers[0].wpm }} WPM</span>
             <div class="step">1º</div>
         </div>
 
-        <div class="podium-place third" *ngIf="sortedPlayers[2]">
+        <div class="podium-place third" *ngIf="sortedPlayers.length >= 3">
             <div class="avatar-wrapper">
-                <img [src]="avatarMap.get(sortedPlayers[0].avatarId)?.url" />
+                <img [src]="avatarMap.get(sortedPlayers[2].avatar_id || 1)?.url" />
             </div>
             <span class="name">{{ sortedPlayers[2].name }}</span>
+            <span class="stats-hint">{{ sortedPlayers[2].wpm }} WPM</span>
             <div class="step">3º</div>
         </div>
     </div>
 
-    <div class="players-list">
+    <div class="players-list" *ngIf="!loading">
         <div class="player-card" *ngFor="let player of sortedPlayers; let i = index">
-            <div class="rank">#{{ i + 1 }}</div>
-            <img class="mini-avatar" [src]="avatarMap.get(player.avatarId)?.url" />
+            <div class="rank" [class.top-three]="i < 3">#{{ player.position }}</div>
+            
+            <img class="mini-avatar" [src]="avatarMap.get(player.avatar_id || 1)?.url" />
+            
             <div class="player-info">
                 <span class="player-name">{{ player.name }}</span>
-                <span class="player-status" *ngIf="player.progress >= 100">Finalizou!</span>
+                <span class="player-speed">{{ player.wpm }} WPM</span>
             </div>
-            <div class="progress-mini">
-                <div class="bar" [style.width.%]="player.progress"></div>
+
+            <div class="player-metrics">
+                <div class="time-display">
+                    ⏱️ {{ player.final_time | number:'1.1-2' }}s
+                </div>
+                <div class="progress-mini">
+                    <div class="bar" style="width: 100%"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <button class="back-button" (click)="goToLobby()">
+    <button class="back-button" (click)="goToLobby()" *ngIf="!loading">
         Voltar para a Sala
     </button>
 </div>

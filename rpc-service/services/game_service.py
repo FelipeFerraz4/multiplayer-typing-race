@@ -61,7 +61,7 @@ class GameService:
             print(f"[START_GAME] Unauthorized start attempt - user={user_id}")
             raise Exception("Only the host can start the game")
 
-        if room["state"] != "WAITING":
+        if room["state"] == "PLAYING":
             print(f"[START_GAME] Room not ready - state={room['state']}")
             raise Exception("Room is not ready to start")
 
@@ -248,6 +248,11 @@ class GameService:
 
         # 🔥 Atualizar estado só depois de confirmar progresso
         self.repo.update_game_state(game_id, "FINISHED")
+        
+        room_id = game.get("room_id")
+        if room_id:
+            print(f"[FINISH_GAME] Atualizando estado da sala {room_id} para WAITING")
+            self.room_repo.update_room_state(room_id, "WAITING")
 
         # Ordenar ranking corretamente
         sorted_progress = sorted(
@@ -279,6 +284,7 @@ class GameService:
             self.repo.save_game_result(result)
 
             results.append(result)
+            
 
         print("=========== FINISH_GAME END ===========\n")
 

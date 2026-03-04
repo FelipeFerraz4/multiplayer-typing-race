@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { GameResult, RoomService } from '../../core/services/room.service';
 
 @Component({
   selector: 'app-results',
@@ -11,14 +12,9 @@ import { Router } from '@angular/router';
 })
 export class Results implements OnInit {
 
-  // Mock de dados dos 5 jogadores com diferentes progressos para testar o pódio
-  players = [
-    { name: 'Ryan', avatarId: 1, progress: 85 },
-    { name: 'João', avatarId: 2, progress: 100 }, // 1º Lugar
-    { name: 'Maria', avatarId: 3, progress: 92 }, // 2º Lugar
-    { name: 'Pedro', avatarId: 4, progress: 70 },
-    { name: 'Lobo', avatarId: 5, progress: 88 }, // 3º Lugar
-  ];
+  players: GameResult[] = [];
+  roomId: string = '';
+  loading: boolean = true;
 
   avatars = [
     { id: 1, url: '/assets/logo-water.webp' },
@@ -30,24 +26,77 @@ export class Results implements OnInit {
 
   avatarMap = new Map<number, { url: string }>();
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute, // Injetado para pegar o ID da URL
+    private roomService: RoomService,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit() {
-    // Inicializa o mapa de avatares para que o HTML consiga buscar as imagens por ID
     this.avatars.forEach(avatar => {
       this.avatarMap.set(avatar.id, { url: avatar.url });
+    });
+
+    // 1. Pega o ID da sala pela URL (ex: /results/ID-DA-SALA)
+    this.route.paramMap.subscribe(params => {
+      this.roomId = params.get('id') || '';
+      if (this.roomId) {
+        this.loadFinalResults();
+      }
+    });
+  }
+
+  loadFinalResults() {
+    this.loading = true;
+
+    // 1. Buscamos a sala para ter a lista de usuários e seus avatares
+    this.roomService.getRoomById(this.roomId).subscribe({
+      next: (room) => {
+        const roomUsers = room.users;
+        const gameId = room.game?.id;
+
+        // 2. Buscamos os resultados finais
+        if (!gameId) {
+          console.error('Game ID not found');
+          this.loading = false;
+          return;
+        }
+        this.roomService.getResults(gameId).subscribe({
+          next: (results) => {
+
+            console.log('Resultados brutos:', results);
+            // 3. Cruzamos os dados: adicionamos o avatar_id da sala nos resultados
+            this.players = results.map(res => {
+              const userInRoom = roomUsers.find(u => u.id === res.user_id);
+              return {
+                ...res,
+                avatar_id: userInRoom ? userInRoom.avatar_id : 1 // fallback para avatar 1
+              };
+            });
+            
+            console.log('Resultados processados:', this.players);
+            this.loading = false;
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error('Erro nos resultados:', err);
+            this.loading = false;
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Erro ao buscar sala:', err);
+        this.loading = false;
+      }
     });
   }
 
   get sortedPlayers() {
-    // Ordena do maior progresso para o menor
-    return [...this.players].sort((a, b) => b.progress - a.progress);
+    return [...this.players].sort((a, b) => a.position - b.position);
   }
 
-  roomId = 'ABCD123';
-
   goToLobby() {
-    // Navega de volta para a sala (room) ['/game', this.roomId]
     this.router.navigate(['/room', this.roomId]);
   }
 }

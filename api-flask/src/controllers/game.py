@@ -112,5 +112,5 @@ class GameResult(Resource):
         if not game_result:
             ns.abort(404, message='Game not found')
             
-        return game_result
+        return game_result.get('results', [])
         

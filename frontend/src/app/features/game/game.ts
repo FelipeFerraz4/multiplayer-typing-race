@@ -160,7 +160,6 @@ export class Game implements OnInit, AfterViewInit, OnDestroy {
   isError = false;
 
   onKeydown(event: KeyboardEvent) {
-    // 1. Permite Backspace para o usuário poder apagar se você permitir erros (opcional)
     if (event.key === 'Backspace') {
       if (this.currentIndex > 0) {
         this.currentIndex--;
@@ -168,40 +167,79 @@ export class Game implements OnInit, AfterViewInit, OnDestroy {
         this.isError = false;
         this.updateProgress();
       }
-      event.preventDefault(); // Evitamos o comportamento padrão do input
-      return;
+      event.preventDefault();
     }
+  }
 
-    // 2. Ignora teclas de controle (Shift, Alt, etc)
-    if (event.key.length > 1) return;
+  // Use o BeforeInput para tratar o texto real (incluindo acentos)
+  onBeforeInput(event: InputEvent) {
+    const charDigitado = event.data; // Aqui o 'ã' já vem pronto, não como 'Dead'
+    
+    // Se não houver dados (ex: deleção), ignoramos aqui pois o keydown cuida
+    if (!charDigitado) return;
 
-    const charDigitado = event.key;
     const charEsperado = this.text[this.currentIndex];
 
-    console.log(`Pressionou: [${charDigitado}] | Esperado: [${charEsperado}]`);
-
-    // 3. Checagem em tempo real
     if (charDigitado === charEsperado) {
       this.currentIndex++;
       this.isError = false;
-
-      // Atualizamos o texto que aparece no input/tela
       this.typedText = this.text.substring(0, this.currentIndex);
-
+      
       this.updateProgress();
       this.scrollToCurrent();
       this.checkVictory();
     } else {
-      // ERRO: Não avançamos o índice e ativamos o efeito de erro
       this.isError = true;
       this.triggerErrorEffect();
-      console.log('Erro! Tecla bloqueada.');
     }
 
-    // 4. BLOQUEIO: Impedimos que a tecla seja escrita no input automaticamente
-    // Nós mesmos controlamos o valor da string via código
+    // Impede que o caractere apareça no input invisível
     event.preventDefault();
   }
+
+  // onKeydown(event: KeyboardEvent) {
+  //   // 1. Permite Backspace para o usuário poder apagar se você permitir erros (opcional)
+  //   if (event.key === 'Backspace') {
+  //     if (this.currentIndex > 0) {
+  //       this.currentIndex--;
+  //       this.typedText = this.text.substring(0, this.currentIndex);
+  //       this.isError = false;
+  //       this.updateProgress();
+  //     }
+  //     event.preventDefault(); // Evitamos o comportamento padrão do input
+  //     return;
+  //   }
+
+  //   // 2. Ignora teclas de controle (Shift, Alt, etc)
+  //   if (event.key.length > 1) return;
+
+  //   const charDigitado = event.key;
+  //   const charEsperado = this.text[this.currentIndex];
+
+  //   console.log(`Pressionou: [${charDigitado}] | Esperado: [${charEsperado}]`);
+
+  //   // 3. Checagem em tempo real
+  //   if (charDigitado === charEsperado) {
+  //     this.currentIndex++;
+  //     this.isError = false;
+
+  //     // Atualizamos o texto que aparece no input/tela
+  //     this.typedText = this.text.substring(0, this.currentIndex);
+
+  //     this.updateProgress();
+  //     this.scrollToCurrent();
+  //     this.checkVictory();
+  //   } else {
+  //     // ERRO: Não avançamos o índice e ativamos o efeito de erro
+  //     this.isError = true;
+  //     this.triggerErrorEffect();
+  //     console.log('Erro! Tecla bloqueada.');
+  //   }
+
+  //   // 4. BLOQUEIO: Impedimos que a tecla seja escrita no input automaticamente
+  //   // Nós mesmos controlamos o valor da string via código
+  //   event.preventDefault();
+  // }
 
   triggerErrorEffect() {
     // Exemplo de feedback: um pequeno "shake" na tela
@@ -224,6 +262,10 @@ export class Game implements OnInit, AfterViewInit, OnDestroy {
   }
 
   focusInput() {
-    this.hiddenInput.nativeElement.focus();
+    if (this.hiddenInput && this.hiddenInput.nativeElement) {
+        this.hiddenInput.nativeElement.focus();
+        // Um pequeno truque para garantir que o teclado suba no iOS
+        this.hiddenInput.nativeElement.click();
+    }
   }
 }
