@@ -1,5 +1,5 @@
 from .room import room_model, user_model, game_model
-from .game import progress_model, progress_update_model
+from .game import progress_model, progress_update_model, start_game_model
 from .results import player_result_model
 from .error import error_model
 from .success import success_model
@@ -15,5 +15,6 @@ __all__ = [
     "player_result_model",
     "progress_update_model",
     "error_model",
-    "success_model"
+    "success_model",
+    "start_game_model"
 ]

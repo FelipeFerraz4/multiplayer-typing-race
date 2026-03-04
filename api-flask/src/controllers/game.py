@@ -19,33 +19,7 @@ class GameById(Resource):
             ns.abort(404, message='Game not found')
         return game
             
-
-@ns.route('/<string:game_id>/start')
-class GameStart(Resource):
-
-    @ns.expect(user_model, validate=True)
-    @ns.response(404, 'Game not found', error_model)
-    @ns.response(400, 'User is not the host', error_model)
-    @ns.response(500, 'Internal server error', error_model)
-    @ns.marshal_with(game_model, mask=None)
-    @ns.doc(
-        'start_game',
-        description='Start the typing race. Only the host user is allowed to perform this action.'
-    )
-    def post(self, game_id):
-        is_host = ns.payload['is_host']
-        if (not is_host):
-            ns.abort(400, message='Only the host can start the game')
             
-        try:
-            game = rpc_client.call('start_game', game_id)
-        except Exception:
-            ns.abort(500, message='Internal server error')
-        
-        if not game:
-            ns.abort(404, message='Game not found')
-        return game
-
 @ns.route('/<string:game_id>/progress')
 class GameProgress(Resource):
     

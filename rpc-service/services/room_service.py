@@ -1,5 +1,5 @@
 import uuid
-from models.room_repository import RoomRepository
+from repository.room_repository import RoomRepository
 
 
 def generate_room_code():

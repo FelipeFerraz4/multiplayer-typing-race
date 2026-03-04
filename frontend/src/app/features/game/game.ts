@@ -1,7 +1,9 @@
-import { AfterViewInit, Component, OnInit, ViewChild, ElementRef, inject, PLATFORM_ID } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild, ElementRef, inject, PLATFORM_ID, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { RoomService } from '../../core/services/room.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-game',
@@ -10,16 +12,40 @@ import { Router } from '@angular/router';
   templateUrl: './game.html',
   styleUrls: ['./game.scss']
 })
-export class Game implements OnInit, AfterViewInit {
+export class Game implements OnInit, AfterViewInit, OnDestroy {
 
-  constructor(private router: Router) { }
+  roomId: string = '';
+  userId: string = '';
+  gameId: string = '';
+  players: any[] = []; // Iniciar vazio, preencher do backend
+  startTime: number = 0;
+  avatarMap = new Map<number, { url: string }>();
 
-  private platformId = inject(PLATFORM_ID);
-  private isBrowser = isPlatformBrowser(this.platformId);
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private roomService: RoomService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  text: string = 'O rato roeu a roupa do rei de Roma e o rei de roma roeu a roupa do rei dos ratos.';
-  typedText = '';
-  currentIndex = 0;
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+    console.log('Componente Game destruído: Limpando listeners mas mantendo socket vivo.');
+  }
+
+  ngOnInit() {
+    this.avatars.forEach(a => this.avatarMap.set(a.id, { url: a.url }));
+
+    this.userId = localStorage.getItem('user_id') || '';
+    
+    this.route.paramMap.subscribe(params => {
+      this.roomId = params.get('id') || '';
+      if (this.roomId) {
+        this.loadGameData();
+        this.setupWebsocket();
+      }
+    });
+  }
 
   avatars = [
     { id: 1, name: 'water', url: '/assets/logo-water.webp' },
@@ -29,22 +55,71 @@ export class Game implements OnInit, AfterViewInit {
     { id: 5, name: 'happy', url: '/assets/logo-happy.webp' }
   ];
 
-  avatarMap = new Map<number, { url: string }>();
+  private subscriptions: Subscription = new Subscription();
 
-  players = [
-    { name: 'Ryan', avatarId: 1, progress: 0 },
-    { name: 'João', avatarId: 5, progress: 0 },
-    { name: 'Maria', avatarId: 3, progress: 0 },
-    { name: 'Pedro', avatarId: 4, progress: 0 },
-    { name: 'Lobo', avatarId: 2, progress: 0 }
-  ];
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
+
+  text: string = 'O rato roeu a roupa do rei de Roma e o rei de roma roeu a roupa do rei dos ratos.';
+  typedText = '';
+  currentIndex = 0;
+
+  loadGameData() {
+    // Busca o texto e os jogadores iniciais da API Flask
+    this.roomService.getRoomById(this.roomId).subscribe(room => {
+      this.text = room.game?.text || '';
+
+      this.players = room.users.map((u: any) => ({
+        id: u.id,
+        name: u.name,
+        avatarId: u.avatar_id,
+        progress: 0
+      }));
+
+      console.log('Dados do jogo carregados:', { text: this.text, players: this.players, room: room });
+
+      this.startTime = Date.now();
+      this.cdr.detectChanges();
+    });
+  }
+
+  setupWebsocket() {
+    const sub = this.roomService.progressUpdate$.subscribe((data: any) => {
+      const player = this.players.find(p => p.id === data.user_id);
+      if (player && data.user_id !== this.userId) {
+        player.progress = data.progress;
+        this.cdr.detectChanges();
+      }
+    });
+    this.subscriptions.add(sub);
+  }
+
+  updateProgress() {
+    if (!this.text.length) return;
+
+    const progress = (this.currentIndex / this.text.length) * 100;
+
+    // Atualiza localmente o seu avatar
+    const me = this.players.find(p => p.id === this.userId);
+    if (me) me.progress = progress;
+
+    // Envia para o servidor via Socket (para atualizar os outros)
+    this.roomService.sendProgress(this.roomId, this.userId, progress);
+    
+    // Opcional: Enviar para a API REST via POST para persistência/estatísticas
+    // conforme o seu progress_update_model
+  }
+
+  checkVictory() {
+    if (this.currentIndex >= this.text.length) {
+      const elapsed = (Date.now() - this.startTime) / 1000;
+      // Notifica o backend que você terminou
+      this.router.navigate(['/results', this.roomId]);
+    }
+  }
 
   @ViewChild('textBox') textBox!: ElementRef;
   @ViewChild('hiddenInput') hiddenInput!: ElementRef;
-
-  ngOnInit() {
-    this.avatars.forEach(a => this.avatarMap.set(a.id, { url: a.url }));
-  }
 
   // 3. Adicione este método
   ngAfterViewInit() {
@@ -69,8 +144,6 @@ export class Game implements OnInit, AfterViewInit {
       };
     });
   }
-
-  roomId = 'ABCD123';
 
   // Adicione esta variável para gerenciar o estado de erro visual (opcional)
   isError = false;
@@ -117,16 +190,6 @@ export class Game implements OnInit, AfterViewInit {
     // 4. BLOQUEIO: Impedimos que a tecla seja escrita no input automaticamente
     // Nós mesmos controlamos o valor da string via código
     event.preventDefault();
-  }
-
-  updateProgress() {
-    this.players[4].progress = Math.min((this.currentIndex / this.text.length) * 100, 100);
-  }
-
-  checkVictory() {
-    if (this.currentIndex >= this.text.length) {
-      setTimeout(() => this.router.navigate(['/results', this.roomId]), 200);
-    }
   }
 
   triggerErrorEffect() {

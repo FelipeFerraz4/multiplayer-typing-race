@@ -83,3 +83,7 @@ progress_update_model = api.model(
         )
     }
 )
+
+start_game_model = api.model('StartGame', {
+    'user_id': fields.String(required=True),
+})

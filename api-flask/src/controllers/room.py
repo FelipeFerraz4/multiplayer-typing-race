@@ -1,5 +1,5 @@
 from flask_restx import Namespace, Resource
-from models import room_model, user_model, error_model
+from models import room_model, user_model, error_model, game_model, start_game_model
 from client import rpc_client
 from server import server
 import uuid
@@ -117,3 +117,26 @@ class RoomLeave(Resource):
             ns.abort(404, message='Room not found')
         return room
     
+@ns.route('/<string:room_id>/start')
+class GameStart(Resource):
+
+    @ns.expect(start_game_model, validate=True)
+    @ns.response(404, 'Room not found', error_model)
+    @ns.response(400, 'User is not the host', error_model)
+    @ns.response(500, 'Internal server error', error_model)
+    @ns.marshal_with(game_model, mask=None)
+    @ns.doc(
+        'start_game',
+        description='Start the typing race. Only the host user is allowed to perform this action.'
+    )
+    def post(self, room_id):
+        user_id = ns.payload['user_id']
+            
+        try:
+            game = rpc_client.call('start_game', room_id, user_id)
+        except Exception as e:
+            ns.abort(500, message=str(e))
+        
+        if not game:
+            ns.abort(404, message='Game not found')
+        return game

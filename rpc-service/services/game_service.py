@@ -1,6 +1,12 @@
+import random
 import uuid
-from models.game_repository import GameRepository
-from models.room_repository import RoomRepository
+from repository.game_repository import GameRepository
+from repository.room_repository import RoomRepository
+from repository.text_game import texts_game
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class GameService:    
     
@@ -33,22 +39,38 @@ class GameService:
         return game
     
     
-    def start_game(self, room_id, text, text_size):
+    def start_game(self, room_id, user_id):
+        print(f"[START_GAME] Request received - room_id={room_id} user_id={user_id}")
+
+        text = random.choice(texts_game)
+        text_size = len(text)
+
+        print(f"[START_GAME] Selected text size={text_size}")
 
         # Buscar sala
         room = self.room_repo.get_room_with_users(room_id)
 
         if not room:
+            print(f"[START_GAME] Room not found - room_id={room_id}")
             raise Exception("Room not found")
 
+        print(f"[START_GAME] Room found - state={room['state']} admin={room['id_admin']}")
+
+        if room["id_admin"] != user_id:
+            print(f"[START_GAME] Unauthorized start attempt - user={user_id}")
+            raise Exception("Only the host can start the game")
+
         if room["state"] != "WAITING":
+            print(f"[START_GAME] Room not ready - state={room['state']}")
             raise Exception("Room is not ready to start")
 
         if len(room["users"]) < 1:
+            print("[START_GAME] No players in room")
             raise Exception("No players in room")
 
         # Criar game
         game_id = str(uuid.uuid4())
+        print(f"[START_GAME] Creating game_id={game_id}")
 
         game = {
             "id": game_id,
@@ -59,16 +81,19 @@ class GameService:
         }
 
         self.repo.create_game(game)
+        print("[START_GAME] Game created in repository")
 
-        # Associar game à sala
-        self.room_repo.update_room_game(room_id, game_id)
-
-        # Atualizar estado da sala
+        self.room_repo.update_room_game(room_id, game)
         self.room_repo.update_room_state(room_id, "PLAYING")
 
-        # Criar progresso inicial para cada jogador
+        print("[START_GAME] Room updated to PLAYING")
+
+        # Criar progresso inicial
         for user in room["users"]:
             self.repo.create_initial_progress(game_id, user["id"])
+            print(f"[START_GAME] Initial progress created for user={user['id']}")
+
+        print(f"[START_GAME] Game successfully started - game_id={game_id}")
 
         return self.repo.get_game_with_progress(game_id)
     

@@ -104,8 +104,22 @@ export class Room {
   }
 
   startGame() {
-    // Em vez de navegar direto, avisa o socket (que avisará todo mundo)
-    this.roomService.emitStartGame(this.roomId);
+    if (!this.roomId) {
+      console.error("Room ID não encontrado");
+      return;
+    }
+
+    this.roomService.startGame(this.roomId, this.currentUserId!).subscribe({
+      next: (game) => {
+        console.log("Jogo iniciado:", game);
+
+        // Só depois que o backend confirmou
+        this.roomService.emitStartGame(this.roomId);
+      },
+      error: (err) => {
+        console.error("Erro ao iniciar jogo:", err);
+      }
+    });
   }
 
   ngOnDestroy() {

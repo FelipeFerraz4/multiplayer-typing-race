@@ -3,9 +3,11 @@
     <div class="track">
         <div class="finish-line"></div>
 
-        <div class="lane" *ngFor="let player of players; let i = index" [style.--lane-index]="i">
+        <div class="lane" *ngFor="let player of players; let i = index" 
+            [class.is-me]="player.id === userId"
+            [style.--lane-index]="i">
             <div class="runner" [style.left.%]="(player.progress / 100) * 92">
-                <span class="player-label">{{ player.name }}</span>
+                <span class="player-label">{{ player.name }} {{ player.id === userId ? '(Você)' : '' }}</span>
                 <img [src]="avatarMap.get(player.avatarId)?.url" />
             </div>
         </div>

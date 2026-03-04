@@ -69,6 +69,15 @@ class Server:
             room_id = data.get('room_id')
             print(f"🚀 [Socket] START_GAME na sala: {room_id}")
             socketio.emit('game_started', {'room_id': room_id}, room=room_id)
+            
+        @socketio.on('send_progress')
+        def handle_progress(data):
+            room_id = data.get('room_id')
+            # Repassa o progresso para todos na sala (inclusive o remetente se necessário)
+            emit('progress_update', {
+                'user_id': data.get('user_id'),
+                'progress': data.get('progress')
+            }, room=room_id, include_self=False)
 
     @property
     def api(self) -> Api: return self.__api

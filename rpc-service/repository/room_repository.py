@@ -286,16 +286,16 @@ class RoomRepository:
             conn.close()
             
     
-    def update_room_game(self, room_id, game_id):
+    def update_room_game(self, room_id, game):
         conn = get_connection()
         cursor = conn.cursor()
 
         try:
             cursor.execute("""
                 UPDATE rooms
-                SET game_id = %s
+                SET game = %s
                 WHERE id = %s
-            """, (game_id, room_id))
+            """, (json.dumps(game), room_id))
 
             conn.commit()
 

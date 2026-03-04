@@ -17,7 +17,29 @@ export interface Room_game {
   id_admin: string;
   state: string;
   users: User[];
-  game: unknown | null;
+  game: Game_game | null;
+}
+
+export interface UserProgress {
+  user_id: string;
+  progress: number;       
+  progress_index: number;
+}
+
+export interface Game_game {
+  id: string;
+  room_id: string;
+  text: string;
+  text_size: number;
+  state: 'CREATED' | 'RUNNING' | 'FINISHED';
+  users_progress: UserProgress[];
+}
+
+export interface ProgressUpdateRequest {
+  user_id: string;
+  typed_characters: number;
+  errors: number;
+  elapsed_time: number;
 }
 
 @Injectable({
@@ -35,6 +57,9 @@ export class RoomService {
   private gameStartedSource = new Subject<string>();
   gameStarted$ = this.gameStartedSource.asObservable();
 
+  private progressUpdateSource = new Subject<any>();
+  progressUpdate$ = this.progressUpdateSource.asObservable();
+
   constructor(private http: HttpClient) {}
 
   // --- Métodos HTTP ---
@@ -48,6 +73,10 @@ export class RoomService {
 
   getRoomById(roomId: string): Observable<Room_game> {
     return this.http.get<Room_game>(`${this.apiUrl}/${roomId}`);
+  }
+
+  startGame(roomId: string, userId: string): Observable<Game_game> {
+    return this.http.post<Game_game>(`http://localhost:5000/room/${roomId}/start`,{ user_id: userId });
   }
 
   // --- Métodos de WebSocket ---
@@ -68,6 +97,10 @@ export class RoomService {
     this.socket.on('game_started', (data: any) => {
       this.gameStartedSource.next(data.room_id);
     });
+
+    this.socket.on('progress_update', (data: any) => {
+      this.progressUpdateSource.next(data);
+    });
   }
 
   emitStartGame(roomId: string) {
@@ -76,5 +109,13 @@ export class RoomService {
 
   disconnectSocket() {
     this.socket?.disconnect();
+  }
+
+  sendProgress(roomId: string, userId: string, progress: number) {
+    this.socket?.emit('send_progress', { 
+      room_id: roomId, 
+      user_id: userId, 
+      progress: progress 
+    });
   }
 }
