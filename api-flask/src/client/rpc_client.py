@@ -20,7 +20,7 @@ class RPCClient:
                     config={
                         "allow_public_attrs": True,
                         "allow_pickle": True,
-                        "sync_request_timeout": 10
+                        "sync_request_timeout": 30
                     }
                 )
             return self._connection

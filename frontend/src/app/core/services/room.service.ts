@@ -42,12 +42,45 @@ export interface ProgressUpdateRequest {
   elapsed_time: number;
 }
 
+export interface ProgressUpdateData {
+  user_id: string;
+  progress: number;
+  progress_index: number;
+}
+
+export interface ProgressUpdateEvent {
+  type: 'PROGRESS_UPDATED';
+  data: ProgressUpdateData | any;
+}
+
+export interface GameResult {
+  game_id: string;
+  user_id: string;
+  name: string;
+  position: number;
+  wpm: number;
+  final_time: number;
+}
+
+export interface GameFinishedData {
+  game_id: string;
+  state: 'FINISHED';
+  results: GameResult[];
+}
+
+export interface GameFinishedEvent {
+  type: 'FINISHED';
+  data: GameFinishedData;
+}
+
+const host = "192.168.31.26";
+
 @Injectable({
   providedIn: 'root'
 })
 export class RoomService {
-  private apiUrl = 'http://localhost:5000/room';
-  private socketUrl = 'http://localhost:5000';
+  private apiUrl = `http://${host}:5000/room`;
+  private socketUrl = `http://${host}:5000`;
   private socket?: Socket;
 
   // Subjects para o componente ouvir eventos específicos
@@ -57,8 +90,11 @@ export class RoomService {
   private gameStartedSource = new Subject<string>();
   gameStarted$ = this.gameStartedSource.asObservable();
 
-  private progressUpdateSource = new Subject<any>();
+  private progressUpdateSource = new Subject<UserProgress>();
   progressUpdate$ = this.progressUpdateSource.asObservable();
+
+  private gameFinishedSource = new Subject<GameFinishedData>();
+  gameFinished$ = this.gameFinishedSource.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -76,7 +112,7 @@ export class RoomService {
   }
 
   startGame(roomId: string, userId: string): Observable<Game_game> {
-    return this.http.post<Game_game>(`http://localhost:5000/room/${roomId}/start`,{ user_id: userId });
+    return this.http.post<Game_game>(`${this.apiUrl}/${roomId}/start`,{ user_id: userId });
   }
 
   // --- Métodos de WebSocket ---
@@ -103,6 +139,11 @@ export class RoomService {
     this.socket.on('progress_update', (data: any) => {
       this.progressUpdateSource.next(data);
     });
+
+    this.socket.on('game_finished', (data: GameFinishedData) => {
+      console.log('Evento game_finished recebido do servidor:', data);
+      this.gameFinishedSource.next(data);
+    });
   }
 
   emitStartGame(roomId: string) {
@@ -113,13 +154,21 @@ export class RoomService {
     this.socket?.disconnect();
   }
 
-  sendProgress(roomId: string, userId: string, progress: number) {
-    console.log(" Enviando progress:", { roomId, userId, progress });
-
+  sendProgress(
+    roomId: string,
+    gameId: string,
+    userId: string,
+    typedCharacters: number,
+    errors: number,
+    elapsedTime: number
+  ) {
     this.socket?.emit('send_progress', { 
-      room_id: roomId, 
-      user_id: userId, 
-      progress: progress 
+      room_id: roomId,
+      game_id: gameId,
+      user_id: userId,
+      typed_characters: typedCharacters,
+      errors: errors,
+      elapsed_time: elapsedTime
     });
   }
 }

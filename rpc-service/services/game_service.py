@@ -137,7 +137,7 @@ class GameService:
             if results:
                 print("[INFO] Resultados já existem")
                 return {
-                    "type": "GAME_FINISHED",
+                    "type": "FINISHED",
                     "data": {
                         "game_id": game_id,
                         "results": results
@@ -150,7 +150,7 @@ class GameService:
                 print(f"[WARNING] Resultados regenerados: {result}")
 
                 return {
-                    "type": "GAME_FINISHED",
+                    "type": "FINISHED",
                     "data": result
                 }
 
@@ -198,7 +198,7 @@ class GameService:
             print(f"[STEP 11] Resultado final: {result}")
             print("================ UPDATE_PROGRESS END (FINISHED) ================\n")
             return {
-                "type": "GAME_FINISHED",
+                "type": "FINISHED",
                 "data": result
             }
 
@@ -341,3 +341,5 @@ class GameService:
         timeout_reached = datetime.now() >= timeout_time
 
         return all_finished or timeout_reached
+    
+    

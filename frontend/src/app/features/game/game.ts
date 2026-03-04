@@ -69,6 +69,7 @@ export class Game implements OnInit, AfterViewInit, OnDestroy {
     // Busca o texto e os jogadores iniciais da API Flask
     this.roomService.getRoomById(this.roomId).subscribe(room => {
       this.text = room.game?.text || '';
+      this.gameId = room.game?.id || '';
 
       this.players = room.users.map((u: any) => ({
         id: u.id,
@@ -92,7 +93,13 @@ export class Game implements OnInit, AfterViewInit, OnDestroy {
         this.cdr.detectChanges();
       }
     });
+
+    const finishSub = this.roomService.gameFinished$.subscribe((data: any) => {
+      console.log('Jogo finalizado. Indo para resultados...');
+      this.router.navigate(['/results', this.roomId]);
+    });
     this.subscriptions.add(sub);
+    this.subscriptions.add(finishSub);
   }
 
   updateProgress() {
@@ -104,18 +111,21 @@ export class Game implements OnInit, AfterViewInit, OnDestroy {
     const me = this.players.find(p => p.id === this.userId);
     if (me) me.progress = progress;
 
-    // Envia para o servidor via Socket (para atualizar os outros)
-    this.roomService.sendProgress(this.roomId, this.userId, progress);
-    
-    // Opcional: Enviar para a API REST via POST para persistência/estatísticas
-    // conforme o seu progress_update_model
+    const elapsed = (Date.now() - this.startTime) / 1000;
+
+    this.roomService.sendProgress(
+      this.roomId,
+      this.gameId,
+      this.userId,
+      this.currentIndex,
+      0, // errors (você pode melhorar depois)
+      elapsed
+    );
   }
 
   checkVictory() {
     if (this.currentIndex >= this.text.length) {
-      const elapsed = (Date.now() - this.startTime) / 1000;
-      // Notifica o backend que você terminou
-      this.router.navigate(['/results', this.roomId]);
+      console.log("Você terminou. Aguardando outros jogadores...");
     }
   }
 

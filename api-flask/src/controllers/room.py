@@ -30,7 +30,7 @@ class RoomColletion(Resource):
         data = ns.payload
 
         user = {
-            "id": str(uuid.uuid4()).upper(),
+            "id": str(uuid.uuid4()),
             "name": data["name"],
             "is_host": data["is_host"],
             "avatar_id": data["avatar_id"]
@@ -78,7 +78,7 @@ class RoomJoin(Resource):
         """ENTRAR NA SALA"""
         data = ns.payload
         user = {
-            'id': str(uuid.uuid4()).upper(),
+            'id': str(uuid.uuid4()),
             'name': data['name'],
             'is_host': data['is_host'],
             'avatar_id': data['avatar_id'],
