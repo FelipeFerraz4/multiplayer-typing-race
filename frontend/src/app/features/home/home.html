@@ -1,25 +1,46 @@
 <div class="container">
-    <h1>Corrida de Digitação</h1>
+    <h1>Corrida das Teclas</h1>
+
+    <div class="avatar-picker">
+        <div class="avatar-display" (click)="nextAvatar()">
+            <img [src]="currentAvatar.url" [alt]="currentAvatar.name" class="floating">
+            <div class="change-badge">
+                <img src="assets/swap.png" alt="Trocar" class="icon-swap">
+            </div>
+        </div>
+        <p class="avatar-name">Personagem: <strong>{{ currentAvatar.name }}</strong></p>
+    </div>
 
     <input type="text" placeholder="Seu nome" [(ngModel)]="name" [disabled]="isLoading" />
 
-    <button (click)="createRoom()" [disabled]="isLoading">
-        {{ isLoading ? 'Criando...' : 'Criar Sala' }}
-    </button>
-    
-    <button (click)="openModal()" [disabled]="isLoading">Entrar em uma sala</button>
+    <div class="button-group">
+        <button (click)="createRoom()" [disabled]="isLoading" class="btn-create">
+            {{ isLoading ? 'Criando...' : 'Criar Sala' }}
+        </button>
+        
+        <button (click)="openModal()" [disabled]="isLoading" class="btn-join">
+            Entrar em uma sala
+        </button>
+    </div>
 </div>
 
-<div class="modal-overlay" *ngIf="showModal">
-    <div class="modal">
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
         <h2>Entrar na Sala</h2>
 
         <p>Olá, <strong>{{ name }}</strong>! Digite o código da sala:</p>
-        <input type="text" placeholder="Ex: 8D109B" [(ngModel)]="roomId" style="text-transform: uppercase;" />
+        
+        <input type="text" 
+               placeholder="Ex: 8D109B" 
+               [(ngModel)]="roomId" 
+               style="text-transform: uppercase;" 
+               maxlength="6"/>
 
         <div class="modal-actions">
-            <button class="cancel" (click)="closeModal()">Cancelar</button>
-            <button class="confirm" (click)="confirmJoin()">Entrar</button>
+            <button class="cancel" (click)="closeModal()" [disabled]="isLoading">Cancelar</button>
+            <button class="confirm" (click)="confirmJoin()" [disabled]="isLoading">
+                {{ isLoading ? 'Entrando...' : 'Confirmar' }}
+            </button>
         </div>
     </div>
 </div>

@@ -16,11 +16,35 @@ export class Home {
   roomId: string = ''; // Começa vazio para o modal
   showModal = false;
   isLoading = false; // Para dar feedback ao usuário
+  selectedAvatarIndex: number = 0;
 
   constructor(
     private router: Router,
     private roomService: RoomService // Injeta o serviço que criamos
   ) {}
+
+  avatars = [
+    { id: 1, url: '/assets/characters/character_1.webp', name: 'bunny' },
+    { id: 2, url: '/assets/characters/character_2.webp', name: 'kitty' },
+    { id: 3, url: '/assets/characters/character_3.webp', name: 'puppy' },
+    { id: 4, url: '/assets/characters/character_4.webp', name: 'fox' },
+    { id: 5, url: '/assets/characters/character_5.webp', name: 'platypus' },
+    { id: 6, url: '/assets/characters/character_6.webp', name: 'panda' },
+    { id: 7, url: '/assets/characters/character_7.webp', name: 'little tiger' }
+  ];
+
+  ngOnInit() {
+    // Define um avatar aleatório ao carregar a página
+    this.selectedAvatarIndex = Math.floor(Math.random() * this.avatars.length);
+  }
+
+  get currentAvatar() {
+    return this.avatars[this.selectedAvatarIndex];
+  }
+
+  nextAvatar() {
+    this.selectedAvatarIndex = (this.selectedAvatarIndex + 1) % this.avatars.length;
+  }
 
   // MÉTODO PARA CRIAR SALA (POST)
   createRoom() {
@@ -35,7 +59,7 @@ export class Home {
       id: "",
       name: this.name,
       is_host: true,
-      avatar_id: 1 // Pode ser fixo por enquanto
+      avatar_id: this.currentAvatar.id
     };
 
     this.roomService.createRoom(userPayload).subscribe({
@@ -87,7 +111,7 @@ export class Home {
       id: "",
       name: this.name,
       is_host: false,
-      avatar_id: 1,
+      avatar_id: this.currentAvatar.id,
       room_code: this.roomId.toUpperCase()
     };
 

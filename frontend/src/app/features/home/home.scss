@@ -161,16 +161,20 @@ button:last-of-type {
 
 .modal-overlay {
     position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2000;
-    padding: 1rem;
+    z-index: 9999; // Certifique-se que é o maior da página
 }
 
 .modal {
+    background: white;
+    z-index: 10000;
     background: white;
     width: 100%;
     max-width: 400px;
@@ -236,4 +240,90 @@ button:last-of-type {
         opacity: 1;
         transform: scale(1);
     }
+}
+
+/* ===============================
+   SELETOR DE AVATAR
+=================================*/
+
+.avatar-picker {
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .avatar-display {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        background: #f8f9fa;
+        border-radius: 50%;
+        padding: 10px;
+        border: 4px solid $secondary;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            transform: scale(1.05);
+            border-color: $primary;
+        }
+
+        img {
+            width: 90%;
+            height: 90%;
+            object-fit: contain;
+        }
+
+        .change-badge {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 1);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            border: 3px solid white;
+        }
+    }
+
+    .avatar-name {
+        margin-top: 0.8rem;
+        color: $text-dark;
+        font-size: 0.9rem;
+        text-transform: capitalize;
+    }
+
+    .btn-change {
+        background: none;
+        border: 1px solid #ddd;
+        color: $text-soft;
+        padding: 0.4rem 1rem;
+        font-size: 0.8rem;
+        width: auto;
+        margin-top: 0.5rem;
+
+        &:hover {
+            background: #f0f0f0;
+            transform: none;
+            box-shadow: none;
+        }
+    }
+}
+
+.floating {
+    animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
 }

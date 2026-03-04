@@ -17,14 +17,16 @@ export class Results implements OnInit {
   loading: boolean = true;
 
   avatars = [
-    { id: 1, url: '/assets/logo-water.webp' },
-    { id: 2, url: '/assets/logo-run.webp' },
-    { id: 3, url: '/assets/logo-ok.webp' },
-    { id: 4, url: '/assets/logo-sleep.webp' },
-    { id: 5, url: '/assets/logo-happy.webp' }
+    { id: 1, url: '/assets/characters/character_1.webp', name: 'bunny' },
+    { id: 2, url: '/assets/characters/character_2.webp', name: 'kitty' },
+    { id: 3, url: '/assets/characters/character_3.webp', name: 'puppy' },
+    { id: 4, url: '/assets/characters/character_4.webp', name: 'fox' },
+    { id: 5, url: '/assets/characters/character_5.webp', name: 'platypus' },
+    { id: 6, url: '/assets/characters/character_6.webp', name: 'panda' },
+    { id: 7, url: '/assets/characters/character_7.webp', name: 'little tiger' }
   ];
 
-  avatarMap = new Map<number, { url: string }>();
+  avatarMap = new Map<number, { url: string, name: string }>();
 
   constructor(
     private router: Router,
@@ -35,7 +37,7 @@ export class Results implements OnInit {
 
   ngOnInit() {
     this.avatars.forEach(avatar => {
-      this.avatarMap.set(avatar.id, { url: avatar.url });
+      this.avatarMap.set(avatar.id, { url: avatar.url, name: avatar.name });
     });
 
     // 1. Pega o ID da sala pela URL (ex: /results/ID-DA-SALA)

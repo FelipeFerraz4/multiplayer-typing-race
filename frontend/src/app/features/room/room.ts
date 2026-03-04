@@ -28,11 +28,13 @@ export class Room {
   currentUserId: string | null = '';
 
   avatars = [
-    { id: 1, name: 'water', url: '/assets/logo-water.webp' },
-    { id: 2, name: 'run', url: '/assets/logo-run.webp' },
-    { id: 3, name: 'ok', url: '/assets/logo-ok.webp' },
-    { id: 4, name: 'sleep', url: '/assets/logo-sleep.webp' },
-    { id: 5, name: 'happy', url: '/assets/logo-happy.webp' }
+    { id: 1, url: '/assets/characters/character_1.webp', name: 'bunny' },
+    { id: 2, url: '/assets/characters/character_2.webp', name: 'kitty' },
+    { id: 3, url: '/assets/characters/character_3.webp', name: 'puppy' },
+    { id: 4, url: '/assets/characters/character_4.webp', name: 'fox' },
+    { id: 5, url: '/assets/characters/character_5.webp', name: 'platypus' },
+    { id: 6, url: '/assets/characters/character_6.webp', name: 'panda' },
+    { id: 7, url: '/assets/characters/character_7.webp', name: 'little tiger' }
   ];
 
   avatarMap = new Map<number, { name: string; url: string }>();
