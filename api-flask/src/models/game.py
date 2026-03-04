@@ -87,3 +87,17 @@ progress_update_model = api.model(
 start_game_model = api.model('StartGame', {
     'user_id': fields.String(required=True),
 })
+
+progress_response_model = api.model(
+    'ProgressResponse',
+    {
+        'type': fields.String(
+            required=True,
+            description='Response type: PROGRESS_UPDATED or GAME_FINISHED'
+        ),
+        'data': fields.Raw(
+            required=True,
+            description='Response payload'
+        )
+    }
+)

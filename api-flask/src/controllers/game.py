@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource
 from client import rpc_client
-from models import game_model, progress_model, error_model, success_model, user_model, player_result_model, progress_update_model
+from models import game_model, progress_model, error_model, success_model, user_model, player_result_model, progress_update_model, progress_response_model
 
 ns = Namespace('Games', path='/game', description='Game management and typing race control')
 
@@ -26,7 +26,7 @@ class GameProgress(Resource):
     @ns.expect(progress_update_model, validate=True)
     @ns.response(404, 'Game not found', error_model)
     @ns.response(500, 'Internal server error', error_model)
-    @ns.marshal_with(progress_model, mask=None)
+    @ns.marshal_with(progress_response_model, mask=None)
     @ns.doc(
         'update_progress',
         description='Submit typing progress update for a specific user in the game.'
@@ -40,7 +40,10 @@ class GameProgress(Resource):
             'elapsed_time': data['elapsed_time']
         }
         try:
-            progress = rpc_client.call('update_progress', game_id, update_request=progress_update_request)
+            print("init endpoint")
+            progress = rpc_client.call('update_progress', game_id, progress_update_request)
+            print(progress)
+            
         except Exception:
             ns.abort(500, message='Internal server error')
         if not progress:

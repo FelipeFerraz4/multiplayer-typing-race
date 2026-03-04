@@ -41,6 +41,7 @@ export class Game implements OnInit, AfterViewInit, OnDestroy {
     this.route.paramMap.subscribe(params => {
       this.roomId = params.get('id') || '';
       if (this.roomId) {
+        this.roomService.connectSocket(this.roomId);
         this.loadGameData();
         this.setupWebsocket();
       }

@@ -33,7 +33,7 @@ class GameRepository:
         try:
             # 🔹 Buscar o jogo
             cursor.execute("""
-                SELECT id, room_id, text, text_size, state
+                SELECT id, room_id, text, text_size, state, created_at
                 FROM games
                 WHERE id = %s
             """, (game_id,))
@@ -49,6 +49,7 @@ class GameRepository:
                 "text": game_row[2],
                 "text_size": game_row[3],
                 "state": game_row[4],
+                "created_at": game_row[5],
                 "users_progress": []
             }
 

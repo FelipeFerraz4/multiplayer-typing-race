@@ -82,24 +82,16 @@ class RPCService(rpyc.Service):
     def exposed_update_progress(
         self,
         game_id_proxy,
-        user_id_proxy,
-        typed_characters_proxy,
-        errors_proxy,
-        elapsed_time_proxy
+        progress_update_request_proxy
     ):
+        print("Init request")
         game_id = obtain(game_id_proxy)
-        user_id = obtain(user_id_proxy)
-        typed_characters = obtain(typed_characters_proxy)
-        errors = obtain(errors_proxy)
-        elapsed_time = obtain(elapsed_time_proxy)
+        progress_update_request = obtain(progress_update_request_proxy)
 
         service = self.game_service
         return service.update_progress(
             game_id,
-            user_id,
-            typed_characters,
-            errors,
-            elapsed_time
+            progress_update_request
         )
 
 

@@ -81,6 +81,8 @@ export class RoomService {
 
   // --- Métodos de WebSocket ---
   connectSocket(roomId: string) {
+    if (this.socket?.connected) return;
+
     this.socket = io(this.socketUrl);
 
     this.socket.on('connect', () => {
@@ -112,6 +114,8 @@ export class RoomService {
   }
 
   sendProgress(roomId: string, userId: string, progress: number) {
+    console.log(" Enviando progress:", { roomId, userId, progress });
+
     this.socket?.emit('send_progress', { 
       room_id: roomId, 
       user_id: userId, 

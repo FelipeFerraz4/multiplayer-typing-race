@@ -4,6 +4,7 @@ from repository.game_repository import GameRepository
 from repository.room_repository import RoomRepository
 from repository.text_game import texts_game
 import logging
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -98,26 +99,54 @@ class GameService:
         return self.repo.get_game_with_progress(game_id)
     
     
-    def update_progress(self, game_id, user_id, typed_characters, errors, elapsed_time):
+    def update_progress(self, game_id, progress_update_request):
+        print("\n================ UPDATE_PROGRESS START ================")
+        print(f"[STEP 1] game_id recebido: {game_id}")
+        print(f"[STEP 1] payload recebido: {progress_update_request}")
 
-        # Buscar jogo
+        try:
+            user_id = progress_update_request["user_id"]
+            typed_characters = progress_update_request["typed_characters"]
+            errors = progress_update_request["errors"]
+            elapsed_time = progress_update_request["elapsed_time"]
+        except KeyError as e:
+            print(f"[ERROR] Campo faltando no payload: {e}")
+            raise
+
+        print(f"[STEP 2] user_id={user_id}")
+        print(f"[STEP 2] typed_characters={typed_characters}")
+        print(f"[STEP 2] errors={errors}")
+        print(f"[STEP 2] elapsed_time={elapsed_time}")
+
         game = self.repo.get_game_with_progress(game_id)
 
+        print(f"[STEP 3] game buscado no banco: {game}")
+
         if not game:
+            print("[ERROR] Game não encontrado")
             raise Exception("Game not found")
 
+        print(f"[STEP 4] game state atual: {game['state']}")
+
         if game["state"] != "RUNNING":
+            print("[ERROR] Game não está RUNNING")
             raise Exception("Game is not running")
 
         text_size = game["text_size"]
+        print(f"[STEP 5] text_size={text_size}")
+
+        if text_size == 0:
+            print("[ERROR] text_size é 0 — divisão inválida")
+            raise Exception("Invalid text size")
 
         if typed_characters > text_size:
+            print("[STEP 6] typed_characters maior que text_size — ajustando")
             typed_characters = text_size
 
-        # Calcular porcentagem
         progress_percentage = (typed_characters / text_size) * 100
+        print(f"[STEP 7] progress_percentage calculado={progress_percentage}")
 
-        # Atualizar progresso no banco
+        print("[STEP 8] Atualizando progresso no banco...")
         self.repo.update_user_progress(
             game_id=game_id,
             user_id=user_id,
@@ -126,15 +155,35 @@ class GameService:
             errors=errors,
             elapsed_time=elapsed_time
         )
+        print("[STEP 8] Banco atualizado com sucesso")
 
-        # Verificar se terminou
-        finished = typed_characters >= text_size
+        print("[STEP 9] Rebuscando jogo atualizado para verificar término...")
+        updated_game = self.repo.get_game_with_progress(game_id)
+        print(f"[STEP 9] updated_game: {updated_game}")
 
+        print("[STEP 10] Chamando _should_finish_game...")
+        should_finish = self._should_finish_game(updated_game)
+        print(f"[STEP 10] should_finish={should_finish}")
+
+        if should_finish:
+            print("[STEP 11] Finalizando jogo...")
+            result = self.finish_game(game_id)
+            print(f"[STEP 11] Resultado final: {result}")
+            print("================ UPDATE_PROGRESS END (FINISHED) ================\n")
+            return {
+                "type": "GAME_FINISHED",
+                "data": result
+            }
+
+        print("================ UPDATE_PROGRESS END (PROGRESS_UPDATED) ================\n")
         return {
-            "progress": progress_percentage,
-            "finished": finished
-        }
-        
+            "type": "PROGRESS_UPDATED",
+            "data": {
+                "user_id": user_id,
+                "progress": progress_percentage,
+                "progress_index": typed_characters
+            }
+        }    
         
     def get_all_progress(self, game_id):
         # 🔹 Verifica se o jogo existe
@@ -220,3 +269,19 @@ class GameService:
             "game_id": game_id,
             "results": results
         }
+            
+    def _should_finish_game(self, game):
+        progress_list = self.repo.get_all_progress(game["id"])
+
+        # 🔥 1️⃣ Todos terminaram?
+        all_finished = all(
+            p["progress"] >= 100 for p in progress_list
+        )
+
+        # 🔥 2️⃣ Timeout 7 minutos
+        created_at = game["created_at"]
+        timeout_time = created_at + timedelta(minutes=7)
+
+        timeout_reached = datetime.now() >= timeout_time
+
+        return all_finished or timeout_reached

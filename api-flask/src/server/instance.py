@@ -73,11 +73,27 @@ class Server:
         @socketio.on('send_progress')
         def handle_progress(data):
             room_id = data.get('room_id')
-            # Repassa o progresso para todos na sala (inclusive o remetente se necessário)
-            emit('progress_update', {
-                'user_id': data.get('user_id'),
-                'progress': data.get('progress')
-            }, room=room_id, include_self=False)
+            user_id = data.get('user_id')
+            progress = data.get('progress')
+            progress_index = data.get('progress_index')
+
+            print("📨 Progress recebido:", data)
+
+            # 🔥 1️⃣ Atualiza no banco
+            game = repo.get_game_by_room(room_id)
+            
+            repo.update_progress(
+                game_id=game["id"],
+                user_id=user_id,
+                progress=progress,
+                progress_index=progress_index
+            )
+
+            # 🔥 2️⃣ Verifica se terminou
+            check_if_game_finished(game["id"])
+
+            # 🔥 3️⃣ Emite atualização
+            emit('progress_update', data, room=room_id, include_self=False)
 
     @property
     def api(self) -> Api: return self.__api
