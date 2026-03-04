@@ -128,8 +128,35 @@ class GameService:
 
         print(f"[STEP 4] game state atual: {game['state']}")
 
+        # Se já terminou, apenas retorna resultado
+        if game["state"] == "FINISHED":
+            print("[INFO] Game já está FINALIZADO")
+
+            results = self.repo.get_game_results(game_id)
+
+            if results:
+                print("[INFO] Resultados já existem")
+                return {
+                    "type": "GAME_FINISHED",
+                    "data": {
+                        "game_id": game_id,
+                        "results": results
+                    }
+                }
+            else:
+                print("[WARNING] Game está FINISHED mas sem resultados — regenerando")
+                result = self.finish_game(game_id)
+                
+                print(f"[WARNING] Resultados regenerados: {result}")
+
+                return {
+                    "type": "GAME_FINISHED",
+                    "data": result
+                }
+
+        # Se não estiver rodando e não estiver finalizado → erro
         if game["state"] != "RUNNING":
-            print("[ERROR] Game não está RUNNING")
+            print("[ERROR] Game não está RUNNING nem FINISHED")
             raise Exception("Game is not running")
 
         text_size = game["text_size"]
@@ -199,18 +226,30 @@ class GameService:
     
     
     def finish_game(self, game_id):
-        # Buscar jogo com progresso
+        print("\n=========== FINISH_GAME START ===========")
+
         game = self.repo.get_game_with_progress(game_id)
 
         if not game:
             raise Exception("Game not found")
 
-        # Atualizar estado do jogo
+        # 🔥 Buscar progresso completo (com elapsed_time)
+        progress_list = self.repo.get_all_progress(game_id)
+
+        print("Progress list:", progress_list)
+
+        if not progress_list:
+            print("⚠ Nenhum progresso encontrado")
+            return {
+                "game_id": game_id,
+                "state": "FINISHED",
+                "results": []
+            }
+
+        # 🔥 Atualizar estado só depois de confirmar progresso
         self.repo.update_game_state(game_id, "FINISHED")
 
-        progress_list = game["users_progress"]
-
-        # Ordenar ranking
+        # Ordenar ranking corretamente
         sorted_progress = sorted(
             progress_list,
             key=lambda p: (-p["progress"], p["elapsed_time"])
@@ -219,6 +258,8 @@ class GameService:
         results = []
 
         for position, progress in enumerate(sorted_progress, start=1):
+
+            print(f"Processando user {progress['user_id']}")
 
             user = self.repo.get_user_by_id(progress["user_id"])
 
@@ -233,10 +274,13 @@ class GameService:
                 "final_time": progress["elapsed_time"]
             }
 
-            # Salvar no banco
+            print("Salvando resultado:", result)
+
             self.repo.save_game_result(result)
 
             results.append(result)
+
+        print("=========== FINISH_GAME END ===========\n")
 
         return {
             "game_id": game_id,
@@ -260,14 +304,26 @@ class GameService:
     
     
     def get_result(self, game_id):
+        print("Pegando os resultados")
+
         results = self.repo.get_game_results(game_id)
 
+        print("Resultados: ", results)
+
         if not results:
-            raise Exception("Results not found")
+            print("Nenhum resultado encontrado ainda")
+            return {
+                "game_id": game_id,
+                "results": [],
+                "status": "PROCESSING"
+            }
+
+        print("Resultados encontrados")
 
         return {
             "game_id": game_id,
-            "results": results
+            "results": results,
+            "status": "FINISHED"
         }
             
     def _should_finish_game(self, game):
