@@ -1,9 +1,14 @@
 import rpyc
+import time
 from rpyc.utils.classic import obtain
+
 
 class RPCClient:
     _instance = None
     _connection = None
+
+    MAX_RETRIES = 3
+    RETRY_DELAY = 1  # segundos
 
     def __new__(cls):
         if cls._instance is None:
@@ -11,9 +16,9 @@ class RPCClient:
         return cls._instance
 
     def get_connection(self):
-        """Retorna uma conexão ativa ou cria uma nova se estiver caída."""
         try:
             if self._connection is None or self._connection.closed:
+                print("Criando nova conexão RPC...")
                 self._connection = rpyc.connect(
                     host="rpc-service",
                     port=18861,
@@ -25,31 +30,50 @@ class RPCClient:
                 )
             return self._connection
         except Exception as e:
-            print(f"Erro ao conectar ao RPC Service: {e}")
+            print(f"Erro ao conectar ao RPC: {e}")
             return None
+
+    def reset_connection(self):
+        """Força recriação da conexão"""
+        try:
+            if self._connection:
+                self._connection.close()
+        except:
+            pass
+        self._connection = None
 
     def call(self, method_name, *args, **kwargs):
-        conn = self.get_connection()
 
-        if not conn:
-            return None
+        attempts = 0
 
-        try:
-            remote_method = getattr(conn.root, method_name)
+        while attempts < self.MAX_RETRIES:
+            conn = self.get_connection()
 
-            if kwargs:
-                result = remote_method(*args, **kwargs)
-            else:
-                result = remote_method(*args)
+            if not conn:
+                attempts += 1
+                print(f"Tentativa {attempts} falhou ao conectar.")
+                time.sleep(self.RETRY_DELAY * attempts)
+                continue
 
-            return obtain(result)
+            try:
+                remote_method = getattr(conn.root, method_name)
 
-        except AttributeError:
-            print(f"❌ Método {method_name} não existe no RPC")
-            return None
+                if kwargs:
+                    result = remote_method(*args, **kwargs)
+                else:
+                    result = remote_method(*args)
 
-        except Exception as e:
-            print(f"❌ Erro ao chamar método {method_name}: {e}")
-            return None
-    
+                return obtain(result)
+
+            except Exception as e:
+                print(f"Erro na tentativa {attempts+1}: {e}")
+
+                attempts += 1
+                self.reset_connection()
+                time.sleep(self.RETRY_DELAY * attempts)
+
+        print(" RPC indisponível após múltiplas tentativas.")
+        return None
+
+
 rpc_client = RPCClient()
